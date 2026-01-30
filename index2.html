@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <title>Core.Metrics | Gestão Profissional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>[v-cloak] { display: none; }</style>
+</head>
+<body class="text-slate-800">
+
+<div id="app" v-cloak>
+    <div v-if="!online" class="bg-amber-500 text-white text-center p-2 text-xs font-bold sticky top-0 z-[60]">
+        <i class="fas fa-plug-circle-xmark mr-2"></i> AGUARDANDO CONEXÃO COM O SERVIDOR (LIGUE O SERVIDOR.PY)
+    </div>
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center h-20">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-chart-line text-xl"></i></div>
+                <span class="font-black text-2xl tracking-tight">CORE.<span class="text-indigo-600">METRICS</span></span>
+            </div>
+            <div class="flex bg-slate-100 p-1 rounded-2xl">
+                <button @click="aba = 'dash'" :class="aba === 'dash' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'" class="px-8 py-2 rounded-xl font-bold transition-all">Dashboard</button>
+                <button @click="aba = 'admin'" :class="aba === 'admin' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'" class="px-8 py-2 rounded-xl font-bold transition-all">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-8">
+        <section v-if="aba === 'dash'" class="space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <p class="text-slate-400 text-[10px] font-black uppercase">Total Consolidado</p>
+                    <h2 class="text-4xl font-black">{{ total.toLocaleString() }}</h2>
+                </div>
+                <div class="bg-indigo-600 p-6 rounded-3xl shadow-xl text-white md:col-span-2 flex justify-between items-center">
+                    <div>
+                        <p class="text-indigo-200 text-[10px] font-black uppercase">Mês de Referência</p>
+                        <select v-model="mesFiltro" class="bg-transparent text-2xl font-black outline-none cursor-pointer">
+                            <option v-for="m in meses" :value="m" class="text-slate-900">{{ m }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-96">
+                    <canvas id="graficoDash"></canvas>
+                </div>
+                <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm overflow-y-auto h-96">
+                    <h3 class="font-black mb-6">Status da Carteira</h3>
+                    <div v-for="i in filtrados" :key="i.id" class="flex justify-between p-4 bg-slate-50 rounded-2xl mb-2">
+                        <span class="font-bold text-slate-700">{{ i.empresa }}</span>
+                        <span class="text-indigo-600 font-black">{{ i.qtd.toLocaleString() }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section v-if="aba === 'admin'" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 bg-white p-8 rounded-3xl shadow-xl border-2 border-indigo-50 h-fit">
+                <h3 class="font-black text-indigo-900 mb-8 uppercase tracking-tight">Modificar Dados</h3>
+                <div class="space-y-4">
+                    <input v-model="form.empresa" type="text" placeholder="Empresa" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold">
+                    <input v-model.number="form.qtd" type="number" placeholder="Quantidade" class="w-full p-4 bg-slate-50 border rounded-2xl font-bold">
+                    <button @click="salvar" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-indigo-600 transition-all">SALVAR NO BANCO DE DADOS</button>
+                </div>
+            </div>
+            <div class="lg:col-span-8 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+                <table class="w-full">
+                    <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase">
+                        <tr><th class="p-6 text-left">Empresa</th><th class="p-6 text-center">Volume</th><th class="p-6 text-center">Ações</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr v-for="i in filtrados" :key="i.id" class="hover:bg-slate-50">
+                            <td class="p-6 font-black text-slate-800">{{ i.empresa }}</td>
+                            <td class="p-6 text-center font-mono font-bold">{{ i.qtd.toLocaleString() }}</td>
+                            <td class="p-6 text-center">
+                                <button @click="excluir(i.id)" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+const { createApp } = Vue;
+createApp({
+    data() {
+        return {
+            aba: 'dash',
+            dados: [],
+            mesFiltro: new Date().toISOString().slice(0, 7),
+            form: { empresa: '', qtd: null },
+            chart: null,
+            online: false
+        }
+    },
+    computed: {
+        filtrados() { return this.dados.filter(d => d.mes === this.mesFiltro); },
+        total() { return this.filtrados.reduce((a, b) => a + b.qtd, 0); },
+        meses() {
+            const m = new Set(this.dados.map(d => d.mes));
+            m.add(new Date().toISOString().slice(0, 7));
+            return Array.from(m).sort().reverse();
+        }
+    },
+    methods: {
+        async carregar() {
+            try {
+                const r = await fetch('http://127.0.0.1:5000/api/dados');
+                this.dados = await r.json();
+                this.online = true;
+                this.initChart();
+            } catch { this.online = false; }
+        },
+        async salvar() {
+            if(!this.form.empresa || this.form.qtd === null) return;
+            await fetch('http://127.0.0.1:5000/api/dados', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({...this.form, mes: this.mesFiltro})
+            });
+            this.form = { empresa: '', qtd: null };
+            this.carregar();
+        },
+        async excluir(id) {
+            await fetch(`http://127.0.0.1:5000/api/dados/${id}`, { method: 'DELETE' });
+            this.carregar();
+        },
+        initChart() {
+            const ctx = document.getElementById('graficoDash');
+            if(!ctx || this.aba !== 'dash') return;
+            const res = {};
+            this.filtrados.forEach(f => res[f.empresa] = (res[f.empresa] || 0) + f.qtd);
+            if(this.chart) this.chart.destroy();
+            this.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(res),
+                    datasets: [{ label: 'Volume', data: Object.values(res), backgroundColor: '#4f46e5', borderRadius: 8 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    },
+    mounted() { this.carregar(); setInterval(this.carregar, 3000); }
+}).mount('#app');
+</script>
+</body>
+</html>
