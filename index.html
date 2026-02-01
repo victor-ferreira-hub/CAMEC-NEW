@@ -3,124 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMEC | Sistema de Gestão Pro</title>
-    
+    <title>CAMEC | Gestão Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .tab-active { border-bottom: 3px solid #10b981; color: #10b981; }
-        .sidebar-btn { transition: all 0.3s ease; }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="bg-slate-50 text-slate-800 font-sans">
 
 <div class="min-h-screen flex flex-col md:flex-row">
-    <aside class="w-full md:w-64 bg-slate-900 text-white p-6">
+    <aside class="w-full md:w-64 bg-slate-900 text-white p-6 shadow-xl">
         <div class="flex items-center gap-3 mb-10">
-            <div class="bg-emerald-500 p-2 rounded-lg">
-                <i class="fas fa-chart-line text-xl"></i>
-            </div>
-            <h1 class="text-xl font-bold tracking-tight">CAMEC PRO</h1>
+            <div class="bg-emerald-500 p-2 rounded-lg"><i class="fas fa-layer-group text-xl"></i></div>
+            <h1 class="text-xl font-bold uppercase tracking-wider">Camec System</h1>
         </div>
         
         <nav class="space-y-2">
-            <button onclick="switchView('dashboard')" id="btn-dashboard" class="sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg bg-emerald-600 text-white">
-                <i class="fas fa-th-large"></i> Dashboard
+            <button onclick="switchView('dashboard')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-600">
+                <i class="fas fa-chart-pie"></i> Dashboard
             </button>
-            <button onclick="switchView('admin')" id="btn-admin" class="sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 text-slate-400">
-                <i class="fas fa-lock"></i> Painel Admin
+            <button onclick="switchView('admin')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 text-slate-400">
+                <i class="fas fa-user-shield"></i> Administração
             </button>
         </nav>
     </aside>
 
-    <main class="flex-1 p-4 md:p-8">
-        
-        <section id="view-dashboard" class="view-section animate-fade-in">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-slate-900">Visão Geral</h2>
-                <p class="text-slate-500">Métricas de desempenho em tempo real</p>
-            </header>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <div class="glass-card p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-slate-500 text-sm font-medium uppercase">Total de Registros</p>
-                    <div class="flex items-end justify-between mt-2">
-                        <span class="text-4xl font-bold text-slate-900" id="total-geral">0</span>
-                        <span class="text-emerald-500 bg-emerald-50 px-2 py-1 rounded text-xs font-bold">+12%</span>
-                    </div>
+    <main class="flex-1 p-6 md:p-10">
+        <section id="view-dashboard" class="view-section active">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-sm font-bold uppercase">Volume Total Mensal</p>
+                    <h2 class="text-4xl font-black text-slate-900" id="total-geral">0</h2>
                 </div>
-                <div class="glass-card p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-slate-500 text-sm font-medium uppercase">Empresas Ativas</p>
-                    <div class="flex items-end justify-between mt-2">
-                        <span class="text-4xl font-bold text-slate-900" id="total-empresas">0</span>
-                        <i class="fas fa-building text-slate-300 text-2xl"></i>
-                    </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-sm font-bold uppercase">Empresas Monitoradas</p>
+                    <h2 class="text-4xl font-black text-slate-900" id="total-empresas">0</h2>
                 </div>
             </div>
-
-            <div class="glass-card p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-semibold mb-4">Volume por Empresa</h3>
-                <div class="h-[400px]">
-                    <canvas id="myChart"></canvas>
-                </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-96">
+                <canvas id="myChart"></canvas>
             </div>
         </section>
 
-        <section id="view-admin" class="view-section hidden">
-            <div id="admin-auth" class="max-w-md mx-auto mt-20 text-center">
-                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-                    <i class="fas fa-shield-alt text-5xl text-emerald-500 mb-4"></i>
-                    <h3 class="text-2xl font-bold mb-2">Área Restrita</h3>
-                    <p class="text-slate-500 mb-6">Insira sua credencial de administrador</p>
-                    <input type="password" id="pass-input" class="w-full p-3 border rounded-xl mb-4 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Senha master">
-                    <button onclick="checkPass()" class="w-full bg-slate-900 text-white p-3 rounded-xl font-bold hover:bg-slate-800 transition">Acessar Painel</button>
+        <section id="view-admin" class="view-section">
+            <div id="auth-container" class="max-w-sm mx-auto mt-10">
+                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+                    <h3 class="text-xl font-bold mb-4">Acesso Restrito</h3>
+                    <input type="email" id="login-email" placeholder="E-mail" class="w-full p-3 mb-3 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="password" id="login-pass" placeholder="Senha" class="w-full p-3 mb-6 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button onclick="login()" class="w-full bg-slate-900 text-white p-3 rounded-lg font-bold">Entrar</button>
                 </div>
             </div>
 
-            <div id="admin-content" class="hidden animate-fade-in">
-                <header class="mb-8 flex justify-between items-center">
-                    <h2 class="text-3xl font-bold text-slate-900">Gerenciamento</h2>
-                    <button onclick="logoutAdmin()" class="text-slate-400 hover:text-red-500 transition"><i class="fas fa-sign-out-alt"></i> Sair</button>
-                </header>
-
-                <div class="glass-card p-6 rounded-2xl shadow-sm mb-8 border border-slate-100">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" id="input-empresa" class="p-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Nome da Empresa">
-                        <input type="number" id="input-registros" class="p-3 border rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Qtd Registros">
-                        <button onclick="salvarDados()" class="bg-emerald-500 text-white p-3 rounded-xl font-bold hover:bg-emerald-600 transition">
-                            <i class="fas fa-plus mr-2"></i> Lançar Registro
-                        </button>
-                    </div>
+            <div id="panel-container" class="hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Gerenciar Lançamentos</h2>
+                    <button onclick="logout()" class="text-red-500 font-medium hover:underline">Sair do Sistema</button>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-slate-100">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="input-empresa" placeholder="Empresa" class="p-3 border rounded-xl">
+                    <input type="number" id="input-registros" placeholder="Qtd" min="1" class="p-3 border rounded-xl">
+                    <button onclick="salvarDados()" class="bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition">Lançar Agora</button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50">
+                        <thead class="bg-slate-50 border-bottom border-slate-100">
                             <tr>
-                                <th class="p-4 font-semibold text-slate-600">Empresa</th>
-                                <th class="p-4 font-semibold text-slate-600">Total Acumulado</th>
-                                <th class="p-4 font-semibold text-slate-600 text-right">Ações</th>
+                                <th class="p-4 font-bold text-slate-500">CLIENTE</th>
+                                <th class="p-4 font-bold text-slate-500 text-center">TOTAL</th>
+                                <th class="p-4 font-bold text-slate-500 text-right">AÇÕES</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-corpo" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="tabela-corpo" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
         </section>
-
     </main>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+    // Configuração do seu Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCzIG5TaDEH2R-f7GtJRiTi_Jxt1aiPiqY", 
         authDomain: "camec-6a988.firebaseapp.com",
@@ -132,139 +106,127 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
     let myChart = null;
 
-    // Alternar Visualização
-    window.switchView = (view) => {
-        document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
-        document.getElementById('view-' + view).classList.remove('hidden');
-        
-        // Atualizar estilo botões sidebar
-        const btnDash = document.getElementById('btn-dashboard');
-        const btnAdmin = document.getElementById('btn-admin');
-        
-        if(view === 'dashboard') {
-            btnDash.className = "sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg bg-emerald-600 text-white shadow-lg shadow-emerald-900/20";
-            btnAdmin.className = "sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 text-slate-400";
-        } else {
-            btnAdmin.className = "sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg bg-emerald-600 text-white shadow-lg shadow-emerald-900/20";
-            btnDash.className = "sidebar-btn w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800 text-slate-400";
+    // --- Lógica de Navegação ---
+    window.switchView = (viewId) => {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+    };
+
+    // --- Lógica de Autenticação Real ---
+    window.login = async () => {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            Swal.fire('Bem-vindo!', 'Acesso autorizado.', 'success');
+        } catch (e) {
+            Swal.fire('Erro', 'Credenciais inválidas!', 'error');
         }
     };
 
-    window.checkPass = () => {
-        const pass = document.getElementById('pass-input').value;
-        if(pass === '1234') {
-            document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-content').classList.remove('hidden');
+    window.logout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        const authDiv = document.getElementById('auth-container');
+        const panelDiv = document.getElementById('panel-container');
+        if (user) {
+            authDiv.classList.add('hidden');
+            panelDiv.classList.remove('hidden');
         } else {
-            Swal.fire({ icon: 'error', title: 'Acesso Negado', text: 'Senha incorreta!' });
+            authDiv.classList.remove('hidden');
+            panelDiv.classList.add('hidden');
         }
-    };
+    });
 
-    window.logoutAdmin = () => {
-        document.getElementById('admin-auth').classList.remove('hidden');
-        document.getElementById('admin-content').classList.add('hidden');
-        document.getElementById('pass-input').value = '';
-    };
-
+    // --- Lógica de Dados (Otimizada) ---
     window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const qtd = parseInt(document.getElementById('input-registros').value);
-        
-        if(!nome || isNaN(qtd)) {
-            return Swal.fire('Atenção', 'Preencha todos os campos corretamente', 'warning');
-        }
+
+        if(!nome || isNaN(qtd) || qtd <= 0) return Swal.fire('Ops!', 'Preencha valores válidos.', 'warning');
+
+        Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
         try {
-            const querySnapshot = await getDocs(collection(db, "empresas"));
-            let totalAtual = 0;
-            querySnapshot.forEach((d) => { if(d.id === nome) totalAtual = d.data().total || 0; });
+            const docRef = doc(db, "empresas", nome);
+            // Uso de increment() -> Operação atômica e performática
+            await setDoc(docRef, { 
+                nome: nome, 
+                total: increment(qtd) 
+            }, { merge: true });
 
-            await setDoc(doc(db, "empresas", nome), { nome: nome, total: totalAtual + qtd });
-            
             document.getElementById('input-empresa').value = '';
             document.getElementById('input-registros').value = '';
-            
-            Swal.fire({ icon: 'success', title: 'Sucesso!', text: 'Registro atualizado.', timer: 1500, showConfirmButton: false });
-        } catch (e) { 
-            Swal.fire('Erro', 'Falha ao salvar no banco de dados', 'error');
+            Swal.close();
+        } catch (e) {
+            Swal.fire('Erro', 'Você tem permissão para gravar?', 'error');
         }
     };
 
     window.excluir = async (id) => {
         const result = await Swal.fire({
-            title: 'Tem certeza?',
-            text: `Deseja zerar os dados da empresa ${id}?`,
+            title: 'Confirmar exclusão?',
+            text: "Os dados da empresa serão removidos permanentemente.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#10b981',
-            cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Sim, zerar!',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: 'Sim, excluir'
         });
 
         if (result.isConfirmed) {
             await deleteDoc(doc(db, "empresas", id));
-            Swal.fire('Zerado!', 'Os dados foram removidos.', 'success');
+            Swal.fire('Excluído!', '', 'success');
         }
     };
 
-    // Monitoramento Realtime
+    // --- Monitoramento e Gráfico (Update Inteligente) ---
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
         
-        // Atualizar Tabela
+        // UI Updates
+        document.getElementById('total-geral').innerText = empresas.reduce((s, e) => s + e.total, 0);
+        document.getElementById('total-empresas').innerText = empresas.length;
+
+        // Tabela
         const corpo = document.getElementById('tabela-corpo');
         corpo.innerHTML = empresas.map(emp => `
             <tr class="hover:bg-slate-50 transition">
                 <td class="p-4 font-bold text-slate-700">${emp.nome}</td>
-                <td class="p-4 text-slate-600">${emp.total} registros</td>
+                <td class="p-4 text-center font-mono font-bold">${emp.total}</td>
                 <td class="p-4 text-right">
-                    <button onclick="window.excluir('${emp.nome}')" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <button onclick="excluir('${emp.nome}')" class="text-red-400 hover:text-red-600 px-3"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
 
-        // Atualizar Cards
-        document.getElementById('total-geral').innerText = empresas.reduce((sum, emp) => sum + emp.total, 0);
-        document.getElementById('total-empresas').innerText = empresas.length;
-
-        // Atualizar Gráfico
+        // Gráfico (Update em vez de destroy)
         updateChart(empresas);
     });
 
-    function updateChart(data) {
+    function updateChart(dados) {
         const ctx = document.getElementById('myChart').getContext('2d');
-        if(myChart) myChart.destroy();
-        
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.map(e => e.nome),
-                datasets: [{
-                    label: 'Registros',
-                    data: data.map(e => e.total),
-                    backgroundColor: '#10b981',
-                    borderRadius: 8,
-                    borderSkipped: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, grid: { display: false } },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
+        const labels = dados.map(d => d.nome);
+        const valores = dados.map(d => d.total);
+
+        if (!myChart) {
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Registros', data: valores, backgroundColor: '#10b981', borderRadius: 10 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        } else {
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = valores;
+            myChart.update();
+        }
     }
 </script>
-
 </body>
 </html>
