@@ -12,6 +12,8 @@
         .view-section { display: none; }
         .view-section.active { display: block; }
         .nav-btn.active { background-color: #000; color: #fff; }
+        /* Ajuste para inputs de número não mostrarem setas em alguns browsers */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
 <body class="bg-white text-black font-sans">
@@ -45,29 +47,34 @@
                 <h2 class="text-2xl font-bold tracking-tight text-black uppercase">Visão Geral</h2>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                <div class="border border-black p-5 rounded-none">
-                    <p class="text-xs font-bold text-gray-400 uppercase">Total Registros</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <div class="border border-black p-5">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Registros</p>
                     <span class="text-3xl font-black" id="total-registros">0</span>
                 </div>
-                <div class="border border-black p-5 rounded-none">
-                    <p class="text-xs font-bold text-gray-400 uppercase">Total SMS</p>
+                <div class="border border-black p-5">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total SMS</p>
                     <span class="text-3xl font-black" id="total-sms">0</span>
                 </div>
-                <div class="border border-black p-5 rounded-none">
-                    <p class="text-xs font-bold text-gray-400 uppercase">Total E-mails</p>
+                <div class="border border-black p-5">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total E-mails</p>
                     <span class="text-3xl font-black" id="total-email">0</span>
+                </div>
+                <div class="border border-black p-5">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Cartas</p>
+                    <span class="text-3xl font-black" id="total-cartas">0</span>
                 </div>
             </div>
 
-            <div class="bg-white border border-gray-200 overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-black text-white">
+            <div class="bg-white border border-gray-200 overflow-x-auto">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead class="bg-black text-white text-[11px] uppercase tracking-wider">
                         <tr>
-                            <th class="p-4 text-xs font-bold uppercase">Empresa</th>
-                            <th class="p-4 text-xs font-bold uppercase text-center">Registros</th>
-                            <th class="p-4 text-xs font-bold uppercase text-center">SMS</th>
-                            <th class="p-4 text-xs font-bold uppercase text-center">E-mail</th>
+                            <th class="p-4 font-bold">Empresa</th>
+                            <th class="p-4 font-bold text-center">Registros</th>
+                            <th class="p-4 font-bold text-center">SMS</th>
+                            <th class="p-4 font-bold text-center">E-mail</th>
+                            <th class="p-4 font-bold text-center">Cartas</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-dashboard" class="divide-y divide-gray-200 text-sm">
@@ -77,8 +84,8 @@
         </section>
 
         <section id="view-grafico" class="view-section">
-            <header class="mb-8">
-                <h2 class="text-2xl font-bold tracking-tight uppercase">Gráficos</h2>
+            <header class="mb-8 text-center md:text-left">
+                <h2 class="text-2xl font-bold tracking-tight uppercase">Performance por Canal</h2>
             </header>
             <div class="bg-white border border-gray-200 p-6 h-[500px]">
                 <canvas id="myChart"></canvas>
@@ -89,24 +96,25 @@
             <div id="auth-container" class="max-w-sm mx-auto mt-10">
                 <div class="border border-black p-8 text-center">
                     <h3 class="font-bold mb-6 uppercase text-xs tracking-widest">Acesso Restrito</h3>
-                    <input type="password" id="pass-input" placeholder="CÓDIGO DE ACESSO" class="w-full p-3 mb-6 border border-gray-300 text-center focus:border-black outline-none">
+                    <input type="password" id="pass-input" placeholder="CÓDIGO DE ACESSO" class="w-full p-3 mb-6 border border-gray-300 text-center focus:border-black outline-none font-mono">
                     <button onclick="checkPass()" class="w-full bg-black text-white p-3 font-bold text-xs hover:bg-gray-800 transition">ENTRAR</button>
                 </div>
             </div>
 
             <div id="panel-container" class="hidden">
                 <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
-                    <h2 class="text-xl font-bold uppercase tracking-tighter">Lançamentos</h2>
+                    <h2 class="text-xl font-bold uppercase tracking-tighter">Lançamentos de Produção</h2>
                     <button onclick="logout()" class="text-xs font-bold text-gray-400 hover:text-black">LOGOUT</button>
                 </div>
 
                 <div class="bg-gray-50 p-6 border border-gray-200 mb-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <input type="text" id="input-empresa" placeholder="Empresa" class="p-3 border bg-white outline-none">
-                        <input type="number" id="input-registros" placeholder="Qtd Registros" min="0" class="p-3 border bg-white outline-none">
-                        <input type="number" id="input-sms" placeholder="Qtd SMS" min="0" class="p-3 border bg-white outline-none">
-                        <input type="number" id="input-email" placeholder="Qtd E-mail" min="0" class="p-3 border bg-white outline-none">
-                        <button onclick="salvarDados()" class="bg-black text-white px-6 py-3 font-bold text-xs uppercase hover:bg-gray-800 transition">Lançar</button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+                        <input type="text" id="input-empresa" placeholder="EMPRESA" class="p-3 border bg-white outline-none text-xs font-bold uppercase">
+                        <input type="number" id="input-registros" placeholder="REGISTROS" min="0" class="p-3 border bg-white outline-none text-xs font-bold">
+                        <input type="number" id="input-sms" placeholder="SMS" min="0" class="p-3 border bg-white outline-none text-xs font-bold">
+                        <input type="number" id="input-email" placeholder="E-MAIL" min="0" class="p-3 border bg-white outline-none text-xs font-bold">
+                        <input type="number" id="input-carta" placeholder="CARTAS" min="0" class="p-3 border bg-white outline-none text-xs font-bold">
+                        <button onclick="salvarDados()" class="bg-black text-white p-3 font-bold text-[10px] uppercase hover:bg-gray-800 transition">Gravar</button>
                     </div>
                 </div>
 
@@ -114,8 +122,8 @@
                     <table class="w-full text-left">
                         <thead class="bg-gray-100">
                             <tr>
-                                <th class="p-4 font-bold uppercase text-xs">Empresa Cadastrada</th>
-                                <th class="p-4 font-bold text-right uppercase text-xs">Ação</th>
+                                <th class="p-4 font-bold uppercase text-[10px] tracking-widest">Empresa</th>
+                                <th class="p-4 font-bold text-right uppercase text-[10px] tracking-widest">Gestão</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-admin" class="divide-y divide-gray-200"></tbody>
@@ -152,14 +160,13 @@
         document.getElementById(`btn-${viewId}`).classList.add('active');
     };
 
-    // --- Login por Código Simples ---
+    // --- Login ---
     window.checkPass = () => {
-        const codigo = document.getElementById('pass-input').value;
-        if(codigo === '1234') { // ALTERE A SENHA AQUI
+        if(document.getElementById('pass-input').value === '1234') {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('panel-container').classList.remove('hidden');
         } else {
-            Swal.fire({ icon: 'error', title: 'Código Inválido', text: 'Tente novamente.' });
+            Swal.fire({ icon: 'error', title: 'Inválido' });
         }
     };
 
@@ -169,78 +176,66 @@
         document.getElementById('pass-input').value = '';
     };
 
-    // --- Lançamento de Dados ---
+    // --- Dados (Com Métrica Carta) ---
     window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const reg = parseInt(document.getElementById('input-registros').value) || 0;
         const sms = parseInt(document.getElementById('input-sms').value) || 0;
         const eml = parseInt(document.getElementById('input-email').value) || 0;
+        const crt = parseInt(document.getElementById('input-carta').value) || 0;
 
-        if(!nome) return Swal.fire('Aviso', 'Nome da empresa é obrigatório.', 'warning');
+        if(!nome) return Swal.fire('Aviso', 'Nome da empresa obrigatório', 'warning');
 
         try {
-            const docRef = doc(db, "empresas", nome);
-            await setDoc(docRef, { 
+            await setDoc(doc(db, "empresas", nome), { 
                 nome, 
                 registros: increment(reg),
                 sms: increment(sms),
-                email: increment(eml)
+                email: increment(eml),
+                cartas: increment(crt)
             }, { merge: true });
 
-            // Limpar campos
-            document.getElementById('input-empresa').value = '';
-            document.getElementById('input-registros').value = '';
-            document.getElementById('input-sms').value = '';
-            document.getElementById('input-email').value = '';
-            
-            Swal.fire({ icon: 'success', title: 'Lançado!', timer: 1000, showConfirmButton: false });
+            document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
+            Swal.fire({ icon: 'success', title: 'Lançado', timer: 800, showConfirmButton: false });
         } catch (e) {
-            Swal.fire('Erro', 'Verifique a conexão ou permissões.', 'error');
+            Swal.fire('Erro', 'Falha na gravação', 'error');
         }
     };
 
     window.excluir = async (id) => {
-        const result = await Swal.fire({
-            title: 'Excluir ' + id + '?',
-            text: "Esta ação não pode ser desfeita.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#000',
-            confirmButtonText: 'Confirmar'
-        });
-        if (result.isConfirmed) await deleteDoc(doc(db, "empresas", id));
+        const res = await Swal.fire({ title: 'Excluir ' + id + '?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#000' });
+        if (res.isConfirmed) await deleteDoc(doc(db, "empresas", id));
     };
 
-    // --- Atualização em Tempo Real ---
+    // --- Realtime Sync ---
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
         
-        // Totais Superiores
+        // Atualiza Totais nos Cards
         document.getElementById('total-registros').innerText = empresas.reduce((s, e) => s + (e.registros || 0), 0);
         document.getElementById('total-sms').innerText = empresas.reduce((s, e) => s + (e.sms || 0), 0);
         document.getElementById('total-email').innerText = empresas.reduce((s, e) => s + (e.email || 0), 0);
+        document.getElementById('total-cartas').innerText = empresas.reduce((s, e) => s + (e.cartas || 0), 0);
 
-        // Tabela Dashboard (Preto e Branco)
+        // Tabela Dashboard
         const tabDash = document.getElementById('tabela-dashboard');
         tabDash.innerHTML = empresas.map(emp => `
             <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 font-black text-black uppercase">${emp.nome}</td>
-                <td class="p-4 text-center font-mono text-gray-600">${emp.registros || 0}</td>
-                <td class="p-4 text-center font-mono text-gray-600">${emp.sms || 0}</td>
-                <td class="p-4 text-center font-mono text-gray-600">${emp.email || 0}</td>
+                <td class="p-4 font-black text-black uppercase tracking-tighter">${emp.nome}</td>
+                <td class="p-4 text-center font-mono text-gray-500">${emp.registros || 0}</td>
+                <td class="p-4 text-center font-mono text-gray-500">${emp.sms || 0}</td>
+                <td class="p-4 text-center font-mono text-gray-500">${emp.email || 0}</td>
+                <td class="p-4 text-center font-mono text-gray-500">${emp.cartas || 0}</td>
             </tr>
         `).join('');
 
-        // Tabela Admin
-        const tabAdmin = document.getElementById('tabela-admin');
-        tabAdmin.innerHTML = empresas.map(emp => `
+        // Tabela Admin (Lista simplificada para exclusão)
+        document.getElementById('tabela-admin').innerHTML = empresas.map(emp => `
             <tr>
-                <td class="p-4 font-bold text-gray-700">${emp.nome}</td>
+                <td class="p-4 font-bold text-gray-600 uppercase text-[11px]">${emp.nome}</td>
                 <td class="p-4 text-right">
-                    <button onclick="excluir('${emp.nome}')" class="text-gray-400 hover:text-black">
-                        <i class="fas fa-times-circle"></i>
-                    </button>
+                    <button onclick="excluir('${emp.nome}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>
         `).join('');
@@ -248,26 +243,30 @@
         updateChart(empresas);
     });
 
+    // --- Gráfico com 4 Barras por Empresa ---
     function updateChart(dados) {
         const ctx = document.getElementById('myChart').getContext('2d');
         const labels = dados.map(d => d.nome);
         
+        const config = {
+            labels: labels,
+            datasets: [
+                { label: 'REGISTROS', data: dados.map(d => d.registros), backgroundColor: '#000' },
+                { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#444' },
+                { label: 'E-MAIL', data: dados.map(d => d.email), backgroundColor: '#888' },
+                { label: 'CARTAS', data: dados.map(d => d.cartas), backgroundColor: '#CCC' }
+            ]
+        };
+
         if (!myChart) {
             myChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Registros', data: dados.map(d => d.registros), backgroundColor: '#000' },
-                        { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#666' },
-                        { label: 'E-mail', data: dados.map(d => d.email), backgroundColor: '#AAA' }
-                    ]
-                },
+                data: config,
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { font: { weight: 'bold' } } } },
-                    scales: { y: { beginAtZero: true } }
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' } } } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { grid: { display: false } } }
                 }
             });
         } else {
@@ -275,6 +274,7 @@
             myChart.data.datasets[0].data = dados.map(d => d.registros);
             myChart.data.datasets[1].data = dados.map(d => d.sms);
             myChart.data.datasets[2].data = dados.map(d => d.email);
+            myChart.data.datasets[3].data = dados.map(d => d.cartas);
             myChart.update();
         }
     }
