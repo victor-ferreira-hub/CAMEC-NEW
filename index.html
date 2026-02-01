@@ -3,85 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMEC | Gestão Enterprise</title>
+    <title>Sistema de Gestão | Minimal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view-section.active { display: block; }
+        .nav-btn.active { background-color: #000; color: #fff; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans">
+<body class="bg-white text-black font-sans">
 
 <div class="min-h-screen flex flex-col md:flex-row">
-    <aside class="w-full md:w-64 bg-slate-900 text-white p-6 shadow-xl">
-        <div class="flex items-center gap-3 mb-10">
-            <div class="bg-emerald-500 p-2 rounded-lg"><i class="fas fa-layer-group text-xl"></i></div>
-            <h1 class="text-xl font-bold uppercase tracking-wider">Camec System</h1>
+    <aside class="w-full md:w-64 bg-white border-r border-gray-200 p-6">
+        <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
+            <div class="bg-black text-white p-2 rounded">
+                <i class="fas fa-terminal"></i>
+            </div>
+            <h1 class="text-lg font-bold tracking-tighter uppercase">Sistema Gestão</h1>
         </div>
         
-        <nav class="space-y-2">
-            <button onclick="switchView('dashboard')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl bg-emerald-600">
-                <i class="fas fa-chart-pie"></i> Dashboard
+        <nav class="space-y-1">
+            <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 p-3 rounded-md text-sm font-bold transition">
+                <i class="fas fa-list"></i> DASHBOARD
             </button>
-            <button onclick="switchView('admin')" class="nav-btn w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 text-slate-400">
-                <i class="fas fa-user-shield"></i> Administração
+            <button onclick="switchView('grafico')" id="btn-grafico" class="nav-btn w-full flex items-center gap-3 p-3 rounded-md text-sm font-bold text-gray-400 hover:text-black transition">
+                <i class="fas fa-chart-bar"></i> GRÁFICO
+            </button>
+            <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 p-3 rounded-md text-sm font-bold text-gray-400 hover:text-black transition">
+                <i class="fas fa-cog"></i> CONFIGURAÇÕES
             </button>
         </nav>
     </aside>
 
     <main class="flex-1 p-6 md:p-10">
+        
         <section id="view-dashboard" class="view-section active">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-sm font-bold uppercase">Volume Total Mensal</p>
-                    <h2 class="text-4xl font-black text-slate-900" id="total-geral">0</h2>
+            <header class="mb-8">
+                <h2 class="text-2xl font-bold tracking-tight">Visão Geral</h2>
+                <p class="text-gray-400 text-sm">Resumo de envios e registros por empresa</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                <div class="border border-gray-200 p-5 rounded-lg">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total Registros</p>
+                    <span class="text-3xl font-bold" id="total-registros">0</span>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-sm font-bold uppercase">Empresas Monitoradas</p>
-                    <h2 class="text-4xl font-black text-slate-900" id="total-empresas">0</h2>
+                <div class="border border-gray-200 p-5 rounded-lg">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total SMS</p>
+                    <span class="text-3xl font-bold" id="total-sms">0</span>
+                </div>
+                <div class="border border-gray-200 p-5 rounded-lg">
+                    <p class="text-xs font-bold text-gray-400 uppercase">Total E-mails</p>
+                    <span class="text-3xl font-bold" id="total-email">0</span>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 h-96">
+
+            <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="p-4 text-xs font-black uppercase text-gray-500">Empresa</th>
+                            <th class="p-4 text-xs font-black uppercase text-gray-500 text-center">Registros</th>
+                            <th class="p-4 text-xs font-black uppercase text-gray-500 text-center">SMS</th>
+                            <th class="p-4 text-xs font-black uppercase text-gray-500 text-center">E-mail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-dashboard" class="divide-y divide-gray-50 text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-grafico" class="view-section">
+            <header class="mb-8">
+                <h2 class="text-2xl font-bold tracking-tight">Gráfico Analítico</h2>
+            </header>
+            <div class="bg-white border border-gray-200 p-6 rounded-xl h-[500px]">
                 <canvas id="myChart"></canvas>
             </div>
         </section>
 
         <section id="view-admin" class="view-section">
             <div id="auth-container" class="max-w-sm mx-auto mt-10">
-                <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-                    <h3 class="text-xl font-bold mb-4">Acesso Restrito</h3>
-                    <input type="email" id="login-email" placeholder="E-mail" class="w-full p-3 mb-3 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="password" id="login-pass" placeholder="Senha" class="w-full p-3 mb-6 border rounded-lg outline-none focus:ring-2 focus:ring-emerald-500">
-                    <button onclick="login()" class="w-full bg-slate-900 text-white p-3 rounded-lg font-bold">Entrar</button>
+                <div class="border border-gray-200 p-8 rounded-xl">
+                    <h3 class="font-bold mb-4 uppercase text-xs tracking-widest">Acesso Admin</h3>
+                    <input type="email" id="login-email" placeholder="E-mail" class="w-full p-3 mb-3 border rounded-md">
+                    <input type="password" id="login-pass" placeholder="Senha" class="w-full p-3 mb-6 border rounded-md">
+                    <button onclick="login()" class="w-full bg-black text-white p-3 rounded-md font-bold text-xs">ENTRAR</button>
                 </div>
             </div>
 
             <div id="panel-container" class="hidden">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-bold">Gerenciar Lançamentos</h2>
-                    <button onclick="logout()" class="text-red-500 font-medium hover:underline">Sair do Sistema</button>
+                <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                    <h2 class="text-xl font-bold uppercase tracking-tighter">Lançamentos</h2>
+                    <button onclick="logout()" class="text-xs font-bold text-gray-400 hover:text-black italic">ENCERRAR SESSÃO</button>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="input-empresa" placeholder="Empresa" class="p-3 border rounded-xl">
-                    <input type="number" id="input-registros" placeholder="Qtd" min="1" class="p-3 border rounded-xl">
-                    <button onclick="salvarDados()" class="bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition">Lançar Agora</button>
+                <div class="bg-gray-50 p-6 rounded-xl border border-gray-100 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <input type="text" id="input-empresa" placeholder="Empresa" class="p-3 border rounded-md bg-white">
+                        <input type="number" id="input-registros" placeholder="Qtd Registros" min="0" class="p-3 border rounded-md bg-white">
+                        <input type="number" id="input-sms" placeholder="Qtd SMS" min="0" class="p-3 border rounded-md bg-white">
+                        <input type="number" id="input-email" placeholder="Qtd E-mail" min="0" class="p-3 border rounded-md bg-white">
+                        <button onclick="salvarDados()" class="bg-black text-white px-6 py-3 rounded-md font-bold text-xs uppercase hover:bg-gray-800 transition">Lançar</button>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="border border-gray-200 rounded-xl overflow-hidden text-sm">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 border-bottom border-slate-100">
+                        <thead class="bg-gray-50 border-b">
                             <tr>
-                                <th class="p-4 font-bold text-slate-500">CLIENTE</th>
-                                <th class="p-4 font-bold text-slate-500 text-center">TOTAL</th>
-                                <th class="p-4 font-bold text-slate-500 text-right">AÇÕES</th>
+                                <th class="p-4 font-bold">Empresa</th>
+                                <th class="p-4 font-bold text-right">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-corpo" class="divide-y divide-slate-50"></tbody>
+                        <tbody id="tabela-admin" class="divide-y divide-gray-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -94,7 +133,6 @@
     import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    // Configuração do seu Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyCzIG5TaDEH2R-f7GtJRiTi_Jxt1aiPiqY", 
         authDomain: "camec-6a988.firebaseapp.com",
@@ -109,24 +147,30 @@
     const auth = getAuth(app);
     let myChart = null;
 
-    // --- Lógica de Navegação ---
+    // --- Navegação ---
     window.switchView = (viewId) => {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.remove('active', 'bg-black', 'text-white');
+            b.classList.add('text-gray-400');
+        });
+        
         document.getElementById(`view-${viewId}`).classList.add('active');
+        const activeBtn = document.getElementById(`btn-${viewId}`);
+        activeBtn.classList.add('active', 'bg-black', 'text-white');
+        activeBtn.classList.remove('text-gray-400');
     };
 
-    // --- Lógica de Autenticação Real ---
+    // --- Auth ---
     window.login = async () => {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
         try {
             await signInWithEmailAndPassword(auth, email, pass);
-            Swal.fire('Bem-vindo!', 'Acesso autorizado.', 'success');
         } catch (e) {
-            Swal.fire('Erro', 'Credenciais inválidas!', 'error');
+            Swal.fire('Erro', 'Acesso negado!', 'error');
         }
     };
-
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
@@ -141,89 +185,105 @@
         }
     });
 
-    // --- Lógica de Dados (Otimizada) ---
+    // --- Dados ---
     window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
-        const qtd = parseInt(document.getElementById('input-registros').value);
+        const reg = parseInt(document.getElementById('input-registros').value) || 0;
+        const sms = parseInt(document.getElementById('input-sms').value) || 0;
+        const eml = parseInt(document.getElementById('input-email').value) || 0;
 
-        if(!nome || isNaN(qtd) || qtd <= 0) return Swal.fire('Ops!', 'Preencha valores válidos.', 'warning');
-
-        Swal.fire({ title: 'Processando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+        if(!nome) return Swal.fire('Aviso', 'Digite o nome da empresa.', 'warning');
 
         try {
             const docRef = doc(db, "empresas", nome);
-            // Uso de increment() -> Operação atômica e performática
             await setDoc(docRef, { 
-                nome: nome, 
-                total: increment(qtd) 
+                nome, 
+                registros: increment(reg),
+                sms: increment(sms),
+                email: increment(eml)
             }, { merge: true });
 
-            document.getElementById('input-empresa').value = '';
-            document.getElementById('input-registros').value = '';
-            Swal.close();
+            document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
+            Swal.fire({ icon: 'success', title: 'Sucesso', timer: 1000, showConfirmButton: false });
         } catch (e) {
-            Swal.fire('Erro', 'Você tem permissão para gravar?', 'error');
+            Swal.fire('Erro', 'Falha ao salvar.', 'error');
         }
     };
 
     window.excluir = async (id) => {
         const result = await Swal.fire({
-            title: 'Confirmar exclusão?',
-            text: "Os dados da empresa serão removidos permanentemente.",
+            title: 'Excluir dados?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#10b981',
-            confirmButtonText: 'Sim, excluir'
+            confirmButtonColor: '#000',
+            confirmButtonText: 'Sim, remover'
         });
-
-        if (result.isConfirmed) {
-            await deleteDoc(doc(db, "empresas", id));
-            Swal.fire('Excluído!', '', 'success');
-        }
+        if (result.isConfirmed) await deleteDoc(doc(db, "empresas", id));
     };
 
-    // --- Monitoramento e Gráfico (Update Inteligente) ---
+    // --- Listeners Realtime ---
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
         
-        // UI Updates
-        document.getElementById('total-geral').innerText = empresas.reduce((s, e) => s + e.total, 0);
-        document.getElementById('total-empresas').innerText = empresas.length;
+        // Atualizar Totais
+        document.getElementById('total-registros').innerText = empresas.reduce((s, e) => s + (e.registros || 0), 0);
+        document.getElementById('total-sms').innerText = empresas.reduce((s, e) => s + (e.sms || 0), 0);
+        document.getElementById('total-email').innerText = empresas.reduce((s, e) => s + (e.email || 0), 0);
 
-        // Tabela
-        const corpo = document.getElementById('tabela-corpo');
-        corpo.innerHTML = empresas.map(emp => `
-            <tr class="hover:bg-slate-50 transition">
-                <td class="p-4 font-bold text-slate-700">${emp.nome}</td>
-                <td class="p-4 text-center font-mono font-bold">${emp.total}</td>
+        // Tabela Dashboard (Visualização Limpa igual imagem)
+        const tabDash = document.getElementById('tabela-dashboard');
+        tabDash.innerHTML = empresas.map(emp => `
+            <tr>
+                <td class="p-4 font-bold text-black uppercase">${emp.nome}</td>
+                <td class="p-4 text-center text-gray-500 font-mono">${emp.registros || 0}</td>
+                <td class="p-4 text-center text-gray-500 font-mono">${emp.sms || 0}</td>
+                <td class="p-4 text-center text-gray-500 font-mono">${emp.email || 0}</td>
+            </tr>
+        `).join('');
+
+        // Tabela Admin
+        const tabAdmin = document.getElementById('tabela-admin');
+        tabAdmin.innerHTML = empresas.map(emp => `
+            <tr>
+                <td class="p-4 font-bold">${emp.nome}</td>
                 <td class="p-4 text-right">
-                    <button onclick="excluir('${emp.nome}')" class="text-red-400 hover:text-red-600 px-3"><i class="fas fa-trash"></i></button>
+                    <button onclick="excluir('${emp.nome}')" class="text-gray-300 hover:text-red-500 transition">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </td>
             </tr>
         `).join('');
 
-        // Gráfico (Update em vez de destroy)
         updateChart(empresas);
     });
 
     function updateChart(dados) {
         const ctx = document.getElementById('myChart').getContext('2d');
         const labels = dados.map(d => d.nome);
-        const valores = dados.map(d => d.total);
-
+        
         if (!myChart) {
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{ label: 'Registros', data: valores, backgroundColor: '#10b981', borderRadius: 10 }]
+                    datasets: [
+                        { label: 'Registros', data: dados.map(d => d.registros), backgroundColor: '#000' },
+                        { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#666' },
+                        { label: 'E-mail', data: dados.map(d => d.email), backgroundColor: '#CCC' }
+                    ]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
             });
         } else {
             myChart.data.labels = labels;
-            myChart.data.datasets[0].data = valores;
+            myChart.data.datasets[0].data = dados.map(d => d.registros);
+            myChart.data.datasets[1].data = dados.map(d => d.sms);
+            myChart.data.datasets[2].data = dados.map(d => d.email);
             myChart.update();
         }
     }
