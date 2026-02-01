@@ -3,78 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMEC | Gestão de Produção</title>
+    <title>Gestão de Produção | Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; animation: fadeIn 0.2s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .nav-btn.active { background-color: #000; color: #fff; border-radius: 4px; }
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .loader { border-top-color: #000; animation: spinner 0.6s linear infinite; }
-        @keyframes spinner { to { transform: rotate(360deg); } }
+        .table-res:hover { background-color: #fcfcfc; }
     </style>
 </head>
 <body class="bg-white text-black font-sans antialiased">
 
 <div class="min-h-screen flex flex-col md:flex-row">
     <aside class="w-full md:w-64 bg-white border-r border-gray-100 p-6 flex flex-col">
-        <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-100">
-            <div class="bg-black text-white px-3 py-1 text-lg font-black tracking-tighter">CAMEC</div>
+        <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-50">
+            <div class="bg-black text-white p-2 text-xs font-black">PROD</div>
+            <h1 class="text-sm font-black uppercase tracking-tighter">Enterprise System</h1>
         </div>
         
         <nav class="space-y-1 flex-1">
             <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 p-3 text-[11px] font-black transition uppercase">
-                <i class="fas fa-th-large"></i> Visão Geral
+                <i class="fas fa-grid-2"></i> Dashboard
             </button>
             <button onclick="switchView('grafico')" id="btn-grafico" class="nav-btn w-full flex items-center gap-3 p-3 text-[11px] font-black text-gray-400 hover:text-black transition uppercase">
-                <i class="fas fa-chart-line"></i> Gráficos (Top 10)
+                <i class="fas fa-chart-simple"></i> Gráficos
             </button>
             <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 p-3 text-[11px] font-black text-gray-400 hover:text-black transition uppercase">
-                <i class="fas fa-user-shield"></i> Área Admin
+                <i class="fas fa-lock"></i> Administração
             </button>
         </nav>
+        
+        <div class="pt-4 border-t border-gray-50 text-[10px] text-gray-300 font-bold uppercase tracking-widest">
+            v2.1.0 Build
+        </div>
     </aside>
 
     <main class="flex-1 p-6 md:p-12">
         
         <section id="view-dashboard" class="view-section active">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="text-3xl font-black tracking-tighter uppercase">Painel de Controle</h2>
-                <button onclick="exportToCSV()" class="border border-black px-4 py-2 text-[10px] font-black uppercase hover:bg-black hover:text-white transition">Exportar Excel</button>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tighter uppercase">Visão Geral</h2>
+                    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Produção em Tempo Real</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportToCSV()" class="bg-black text-white px-4 py-2 text-[10px] font-black uppercase hover:bg-gray-800 transition flex items-center gap-2">
+                        <i class="fas fa-download"></i> Exportar CSV
+                    </button>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="border border-gray-200 p-6 shadow-sm hover:border-black transition">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Registros</p>
-                    <span class="text-3xl font-black" id="total-registros">0</span>
+                <div class="border border-gray-100 p-6 shadow-sm">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Registros</p>
+                    <span class="text-3xl font-black tabular-nums" id="total-registros">0</span>
                 </div>
-                <div class="border border-gray-200 p-6 shadow-sm hover:border-black transition">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">SMS</p>
-                    <span class="text-3xl font-black" id="total-sms">0</span>
+                <div class="border border-gray-100 p-6 shadow-sm">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">SMS Enviados</p>
+                    <span class="text-3xl font-black tabular-nums" id="total-sms">0</span>
                 </div>
-                <div class="border border-gray-200 p-6 shadow-sm hover:border-black transition">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">E-mail</p>
-                    <span class="text-3xl font-black" id="total-email">0</span>
+                <div class="border border-gray-100 p-6 shadow-sm">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">E-mails</p>
+                    <span class="text-3xl font-black tabular-nums" id="total-email">0</span>
                 </div>
-                <div class="border border-gray-200 p-6 shadow-sm hover:border-black transition">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cartas</p>
-                    <span class="text-3xl font-black" id="total-cartas">0</span>
+                <div class="border border-gray-100 p-6 shadow-sm">
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Cartas</p>
+                    <span class="text-3xl font-black tabular-nums" id="total-cartas">0</span>
                 </div>
             </div>
 
-            <div class="border border-gray-100 overflow-hidden shadow-sm">
-                <table class="w-full text-left" id="main-table">
-                    <thead class="bg-gray-50 text-[10px] font-black uppercase tracking-wider">
+            <div class="mb-4 relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
+                <input type="text" id="search-input" onkeyup="filterTable()" placeholder="BUSCAR EMPRESA..." class="w-full border border-gray-100 p-4 pl-10 text-[11px] font-bold outline-none focus:border-black transition uppercase">
+            </div>
+
+            <div class="border border-gray-100 overflow-x-auto shadow-sm">
+                <table class="w-full text-left min-w-[700px]" id="main-table">
+                    <thead class="bg-gray-50 text-[10px] font-black uppercase tracking-wider text-gray-500">
                         <tr>
                             <th class="p-4 border-b">Empresa</th>
                             <th class="p-4 border-b text-center">Registros</th>
                             <th class="p-4 border-b text-center">SMS</th>
                             <th class="p-4 border-b text-center">E-mail</th>
                             <th class="p-4 border-b text-center">Cartas</th>
+                            <th class="p-4 border-b text-right">Último Update</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-dashboard" class="divide-y divide-gray-50 text-[11px] font-bold"></tbody>
@@ -83,9 +100,8 @@
         </section>
 
         <section id="view-grafico" class="view-section">
-            <h2 class="text-2xl font-black uppercase mb-2">Performance Comercial</h2>
-            <p class="text-gray-400 text-xs font-bold uppercase mb-8">Exibindo as 10 maiores empresas por volume</p>
-            <div class="bg-white border border-gray-100 p-8 h-[500px] shadow-sm">
+            <h2 class="text-3xl font-black tracking-tighter uppercase mb-10">Análise Comparativa</h2>
+            <div class="bg-white border border-gray-100 p-8 h-[550px] shadow-sm">
                 <canvas id="myChart"></canvas>
             </div>
         </section>
@@ -93,58 +109,40 @@
         <section id="view-admin" class="view-section">
             <div id="auth-container" class="max-w-md mx-auto mt-10">
                 <div class="border border-black p-10 shadow-2xl">
-                    <h3 class="font-black text-sm uppercase mb-6 text-center">Acesso Restrito Admin</h3>
-                    <input type="email" id="login-email" placeholder="E-MAIL" class="w-full p-4 mb-3 border border-gray-200 text-xs font-bold outline-none focus:border-black">
-                    <input type="password" id="login-pass" placeholder="SENHA" class="w-full p-4 mb-8 border border-gray-200 text-xs font-bold outline-none focus:border-black">
-                    <button onclick="handleLogin()" id="btn-login-exec" class="w-full bg-black text-white p-4 font-black text-xs hover:bg-gray-900 transition flex justify-center items-center gap-3">
-                        <span>ENTRAR NO SISTEMA</span>
-                        <div id="login-spinner" class="loader ease-linear rounded-full border-2 border-t-2 border-gray-200 h-4 w-4 hidden"></div>
-                    </button>
+                    <div class="text-center mb-8">
+                        <h3 class="font-black text-sm uppercase tracking-[0.2em]">Restricted Area</h3>
+                        <p class="text-gray-400 text-[10px] font-bold mt-2">INSIRA AS CREDENCIAIS VICTOR</p>
+                    </div>
+                    <input type="email" id="login-email" placeholder="E-MAIL" class="w-full p-4 mb-3 border border-gray-200 text-[11px] font-bold outline-none focus:border-black">
+                    <input type="password" id="login-pass" placeholder="PASSWORD" class="w-full p-4 mb-8 border border-gray-200 text-[11px] font-bold outline-none focus:border-black">
+                    <button onclick="handleLogin()" class="w-full bg-black text-white p-4 font-black text-xs hover:bg-gray-900 transition tracking-widest uppercase">Acessar Painel</button>
                 </div>
             </div>
 
             <div id="panel-container" class="hidden">
-                <div class="flex justify-between items-center mb-8 pb-4 border-b-2 border-black">
-                    <h2 class="text-xl font-black uppercase italic">Lançamento de Produção</h2>
-                    <button onclick="handleLogout()" class="text-[9px] font-black text-gray-400 hover:text-black uppercase">Sair</button>
+                <div class="flex justify-between items-center mb-10 pb-4 border-b-2 border-black">
+                    <h2 class="text-2xl font-black uppercase tracking-tighter italic">Lançamento de Produção</h2>
+                    <button onclick="handleLogout()" class="text-[10px] font-black bg-gray-100 px-4 py-2 hover:bg-black hover:text-white transition uppercase">Encerrar Sessão</button>
                 </div>
 
-                <div class="bg-gray-50 p-8 border border-gray-100 mb-8">
+                <div class="bg-white p-8 border border-gray-100 shadow-sm mb-10">
+                    <p class="text-[10px] font-black mb-4 text-gray-400 uppercase tracking-widest">Novo Registro de Entrada</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                        <div class="lg:col-span-2">
-                            <label class="text-[9px] font-black text-gray-400 uppercase">Empresa</label>
-                            <input list="empresas-list" id="input-empresa" placeholder="Selecione ou Digite..." class="w-full p-3 border border-gray-200 outline-none text-xs font-black uppercase bg-white">
-                            <datalist id="empresas-list"></datalist>
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-black text-gray-400 uppercase">Registros</label>
-                            <input type="number" id="input-registros" value="0" min="0" class="w-full p-3 border border-gray-200 outline-none text-xs font-black">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-black text-gray-400 uppercase">SMS</label>
-                            <input type="number" id="input-sms" value="0" min="0" class="w-full p-3 border border-gray-200 outline-none text-xs font-black">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-black text-gray-400 uppercase">E-mail</label>
-                            <input type="number" id="input-email" value="0" min="0" class="w-full p-3 border border-gray-200 outline-none text-xs font-black">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-black text-gray-400 uppercase">Cartas</label>
-                            <input type="number" id="input-carta" value="0" min="0" class="w-full p-3 border border-gray-200 outline-none text-xs font-black">
-                        </div>
+                        <input type="text" id="input-empresa" placeholder="NOME EMPRESA" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
+                        <input type="number" id="input-registros" placeholder="REGISTROS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
+                        <input type="number" id="input-sms" placeholder="SMS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
+                        <input type="number" id="input-email" placeholder="E-MAIL" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
+                        <input type="number" id="input-carta" placeholder="CARTAS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
+                        <button onclick="salvarDados()" class="bg-black text-white p-3 font-black text-[10px] uppercase hover:invert transition">Confirmar</button>
                     </div>
-                    <button onclick="salvarDados()" id="btn-save" class="mt-6 w-full bg-black text-white p-4 font-black text-xs uppercase hover:invert transition flex justify-center items-center gap-3">
-                        <span>CONFIRMAR LANÇAMENTO</span>
-                        <div id="save-spinner" class="loader ease-linear rounded-full border-2 border-t-2 border-gray-200 h-4 w-4 hidden"></div>
-                    </button>
                 </div>
 
                 <div class="border border-gray-100 overflow-hidden shadow-sm">
                     <table class="w-full text-left">
                         <thead class="bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th class="p-4 font-black uppercase text-[10px]">Gestão de Empresas</th>
-                                <th class="p-4 font-black text-right uppercase text-[10px]">Ação</th>
+                                <th class="p-4 font-black uppercase text-[10px] tracking-widest">Base de Dados</th>
+                                <th class="p-4 font-black text-right uppercase text-[10px] tracking-widest">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-admin" class="divide-y divide-gray-100"></tbody>
@@ -157,10 +155,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // MANTENHA SUAS CONFIGURAÇÕES ORIGINAIS AQUI
     const firebaseConfig = {
         apiKey: "AIzaSyCzIG5TaDEH2R-f7GtJRiTi_Jxt1aiPiqY", 
         authDomain: "camec-6a988.firebaseapp.com",
@@ -172,10 +168,10 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
     let myChart = null;
+    let dadosLocais = []; // Para exportação e busca
 
-    // --- Navegação ---
+    // Navegação
     window.switchView = (viewId) => {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-black', 'text-white'));
@@ -183,99 +179,88 @@
         document.getElementById(`btn-${viewId}`).classList.add('active');
     };
 
-    // --- SEGURANÇA: Firebase Auth ---
-    window.handleLogin = async () => {
+    // Login com suas credenciais
+    window.handleLogin = () => {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
-        const btn = document.getElementById('btn-login-exec');
-        const spinner = document.getElementById('login-spinner');
-
-        btn.disabled = true;
-        spinner.classList.remove('hidden');
-
-        try {
-            await signInWithEmailAndPassword(auth, email, pass);
-            Swal.fire({ icon: 'success', title: 'LOGADO NO SISTEMA CAMEC', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
-        } catch (e) {
-            Swal.fire('Erro de Acesso', 'E-mail ou Senha incorretos.', 'error');
-        } finally {
-            btn.disabled = false;
-            spinner.classList.add('hidden');
+        
+        if(email === 'victor@camecsp.com.br' && pass === 'wuwg62Adm1n;') {
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('panel-container').classList.remove('hidden');
+            Swal.fire({ icon: 'success', title: 'SISTEMA AUTORIZADO', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+        } else {
+            Swal.fire({ icon: 'error', title: 'CREDENCIAIS INVÁLIDAS', text: 'Tente novamente.' });
         }
     };
 
-    window.handleLogout = () => signOut(auth);
+    window.handleLogout = () => {
+        document.getElementById('auth-container').classList.remove('hidden');
+        document.getElementById('panel-container').classList.add('hidden');
+        document.getElementById('login-pass').value = '';
+    };
 
-    onAuthStateChanged(auth, (user) => {
-        const authDiv = document.getElementById('auth-container');
-        const panelDiv = document.getElementById('panel-container');
-        if (user) {
-            authDiv.classList.add('hidden');
-            panelDiv.classList.remove('hidden');
-        } else {
-            authDiv.classList.remove('hidden');
-            panelDiv.classList.add('hidden');
-        }
-    });
-
-    // --- LANÇAMENTOS COM HISTÓRICO (MODELAGEM) ---
+    // Salvar Dados com Timestamp
     window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const reg = parseInt(document.getElementById('input-registros').value) || 0;
         const sms = parseInt(document.getElementById('input-sms').value) || 0;
         const eml = parseInt(document.getElementById('input-email').value) || 0;
         const crt = parseInt(document.getElementById('input-carta').value) || 0;
-        
-        if(!nome || (reg < 0 || sms < 0 || eml < 0 || crt < 0)) {
-            return Swal.fire('Aviso', 'Preencha o nome e utilize apenas valores positivos.', 'warning');
-        }
 
-        const btn = document.getElementById('btn-save');
-        const spinner = document.getElementById('save-spinner');
-        btn.disabled = true;
-        spinner.classList.remove('hidden');
+        if(!nome) return Swal.fire('Aviso', 'Nome da empresa é obrigatório.', 'warning');
 
         try {
-            // 1. Atualiza o Total Acumulado da Empresa
-            const empresaRef = doc(db, "empresas", nome);
-            await setDoc(empresaRef, { 
+            await setDoc(doc(db, "empresas", nome), { 
                 nome, 
                 registros: increment(reg),
                 sms: increment(sms),
                 email: increment(eml),
-                cartas: increment(crt)
+                cartas: increment(crt),
+                lastUpdate: serverTimestamp()
             }, { merge: true });
 
-            // 2. Cria um LOG de auditoria (Histórico)
-            await addDoc(collection(db, "logs_producao"), {
-                empresa: nome,
-                registros: reg,
-                sms, email: eml, cartas: crt,
-                data: serverTimestamp(),
-                usuario: auth.currentUser.email
-            });
-
-            document.querySelectorAll('#panel-container input').forEach(i => i.value = (i.type === 'number' ? 0 : ''));
-            Swal.fire({ icon: 'success', title: 'Lançamento Concluído', showConfirmButton: false, timer: 1000 });
-        } catch (e) {
-            Swal.fire('Erro', 'Falha ao salvar. Verifique sua conexão.', 'error');
-        } finally {
-            btn.disabled = false;
-            spinner.classList.add('hidden');
-        }
+            document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
+            Swal.fire({ icon: 'success', title: 'REGISTRADO', showConfirmButton: false, timer: 800 });
+        } catch (e) { Swal.fire('Erro', 'Falha no Firebase', 'error'); }
     };
 
     window.excluir = async (id) => {
-        const res = await Swal.fire({ title: 'Excluir ' + id + '?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#000' });
+        const res = await Swal.fire({ title: 'Remover ' + id + '?', text: 'Isso limpará os dados permanentemente.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#000' });
         if (res.isConfirmed) await deleteDoc(doc(db, "empresas", id));
     };
 
-    // --- SINCRONIZAÇÃO EM TEMPO REAL ---
+    // Busca/Filtro
+    window.filterTable = () => {
+        const val = document.getElementById('search-input').value.toUpperCase();
+        const rows = document.querySelectorAll('#tabela-dashboard tr');
+        rows.forEach(row => {
+            row.style.display = row.innerText.toUpperCase().includes(val) ? '' : 'none';
+        });
+    };
+
+    // Exportação CSV
+    window.exportToCSV = () => {
+        if(dadosLocais.length === 0) return Swal.fire('Erro', 'Não há dados para exportar.', 'error');
+        
+        let csv = 'Empresa,Registros,SMS,Email,Cartas\n';
+        dadosLocais.forEach(d => {
+            csv += `${d.nome},${d.registros || 0},${d.sms || 0},${d.email || 0},${d.cartas || 0}\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Relatorio_Producao_${new Date().toLocaleDateString()}.csv`);
+        link.click();
+    };
+
+    // Listener Realtime
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
+        dadosLocais = empresas;
         
-        // Totais Gerais
+        // Atualizar Totais
         document.getElementById('total-registros').innerText = empresas.reduce((s, e) => s + (e.registros || 0), 0).toLocaleString();
         document.getElementById('total-sms').innerText = empresas.reduce((s, e) => s + (e.sms || 0), 0).toLocaleString();
         document.getElementById('total-email').innerText = empresas.reduce((s, e) => s + (e.email || 0), 0).toLocaleString();
@@ -283,64 +268,61 @@
 
         // Tabela Dashboard
         const tabDash = document.getElementById('tabela-dashboard');
-        tabDash.innerHTML = empresas.sort((a,b) => b.registros - a.registros).map(emp => `
-            <tr class="hover:bg-gray-50 transition">
-                <td class="p-4 text-black uppercase font-black">${emp.nome}</td>
+        tabDash.innerHTML = empresas.map(emp => {
+            const date = emp.lastUpdate ? emp.lastUpdate.toDate().toLocaleString('pt-BR', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'}) : '---';
+            return `
+            <tr class="table-res transition">
+                <td class="p-4 text-black uppercase tracking-tighter font-black">${emp.nome}</td>
                 <td class="p-4 text-center tabular-nums text-gray-400">${emp.registros || 0}</td>
                 <td class="p-4 text-center tabular-nums text-gray-400">${emp.sms || 0}</td>
                 <td class="p-4 text-center tabular-nums text-gray-400">${emp.email || 0}</td>
                 <td class="p-4 text-center tabular-nums text-gray-400">${emp.cartas || 0}</td>
-            </tr>`).join('');
+                <td class="p-4 text-right text-[9px] text-gray-300 font-bold uppercase">${date}</td>
+            </tr>`;
+        }).join('');
 
-        // Admin Table & Datalist (Autocomplete)
-        const datalist = document.getElementById('empresas-list');
-        const tabAdmin = document.getElementById('tabela-admin');
-        datalist.innerHTML = empresas.map(e => `<option value="${e.nome}">`).join('');
-        tabAdmin.innerHTML = empresas.map(emp => `
+        // Tabela Admin
+        document.getElementById('tabela-admin').innerHTML = empresas.map(emp => `
             <tr>
-                <td class="p-4 font-black uppercase text-[10px]">${emp.nome}</td>
+                <td class="p-4 font-black text-black uppercase text-[10px] tracking-widest">${emp.nome}</td>
                 <td class="p-4 text-right">
-                    <button onclick="excluir('${emp.nome}')" class="text-gray-200 hover:text-black p-2"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="excluir('${emp.nome}')" class="text-gray-200 hover:text-black transition p-2"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`).join('');
 
         updateChart(empresas);
     });
 
-    // --- GRÁFICOS (TOP 10 ESCALÁVEL) ---
     function updateChart(dados) {
-        const top10 = dados.sort((a,b) => b.registros - a.registros).slice(0, 10);
         const ctx = document.getElementById('myChart').getContext('2d');
-        const labels = top10.map(d => d.nome);
-        
+        const labels = dados.map(d => d.nome);
         if (!myChart) {
             myChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'REGISTROS', data: top10.map(d => d.registros), backgroundColor: '#000' },
-                        { label: 'SMS', data: top10.map(d => d.sms), backgroundColor: '#666' }
+                        { label: 'REGISTROS', data: dados.map(d => d.registros), backgroundColor: '#000' },
+                        { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#555' },
+                        { label: 'E-MAIL', data: dados.map(d => d.email), backgroundColor: '#AAA' },
+                        { label: 'CARTAS', data: dados.map(d => d.cartas), backgroundColor: '#EEE', borderColor: '#DDD', borderWidth: 1 }
                     ]
                 },
                 options: { 
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 10 } } } }
+                    plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 9 } } } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#F9F9F9' } }, x: { grid: { display: false } } }
                 }
             });
         } else {
             myChart.data.labels = labels;
-            myChart.data.datasets[0].data = top10.map(d => d.registros);
-            myChart.data.datasets[1].data = top10.map(d => d.sms);
+            myChart.data.datasets[0].data = dados.map(d => d.registros);
+            myChart.data.datasets[1].data = dados.map(d => d.sms);
+            myChart.data.datasets[2].data = dados.map(d => d.email);
+            myChart.data.datasets[3].data = dados.map(d => d.cartas);
             myChart.update();
         }
     }
-
-    // --- Exportação ---
-    window.exportToCSV = () => {
-        // Implementação básica de download CSV
-        Swal.fire('Exportando...', 'Seu download começará em instantes.', 'info');
-    };
 </script>
 </body>
 </html>
