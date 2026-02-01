@@ -32,8 +32,8 @@
 
 <div class="container">
     <nav>
-        <button onclick="switchView('dashboard')" id="btn-dash" class="active">📊 Dashboard</button>
-        <button onclick="switchView('admin')" id="btn-admin">⚙️ Admin</button>
+        <button onclick="window.switchView('dashboard')" id="btn-dash" class="active">📊 Dashboard</button>
+        <button onclick="window.switchView('admin')" id="btn-admin">⚙️ Admin</button>
     </nav>
 
     <div id="view-dashboard" class="view active">
@@ -56,14 +56,14 @@
         <div id="admin-auth" class="admin-lock">
             <h3>🔒 Área Restrita</h3>
             <input type="password" id="pass-input" placeholder="Digite a senha admin">
-            <button class="btn-main" onclick="checkPass()">Entrar</button>
+            <button class="btn-main" onclick="window.checkPass()">Entrar</button>
         </div>
 
         <div id="admin-content" style="display: none;">
             <div class="form-group">
                 <input type="text" id="input-empresa" placeholder="Nome da Empresa">
                 <input type="number" id="input-registros" placeholder="Qtd Registros">
-                <button class="btn-main" onclick="salvarDados()">Lançar Registro</button>
+                <button class="btn-main" onclick="window.salvarDados()">Lançar Registro</button>
             </div>
             <table>
                 <thead>
@@ -80,89 +80,70 @@
 </div>
 
 <script type="module">
-    // Importando Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // CONFIGURAÇÃO (PREENCHA COM OS DADOS DA SUA FOTO)
+    // DADOS DA SUA FOTO (Confira se estão idênticos!)
     const firebaseConfig = {
-        apiKey: "COLE_AQUI_A_API_KEY_DA_SUA_FOTO", 
+        apiKey: "AIzaSyCzIG5TaDEH2R-f7GtJRiTi_Jxt1aiPiqY", 
         authDomain: "camec-6a988.firebaseapp.com",
         projectId: "camec-6a988",
         storageBucket: "camec-6a988.appspot.com",
         messagingSenderId: "37119733437",
-        appId: "COLE_AQUI_O_APP_ID_DA_SUA_FOTO"
+        appId: "1:37119733437:web:49241324e93e303e30a5d2"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let myChart = null;
 
-    // Trocar de tela
-    window.switchView = function(view) {
+    // Funções globais para o HTML conseguir ler
+    window.switchView = (view) => {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById('view-' + view).classList.add('active');
         document.getElementById('btn-' + view).classList.add('active');
-    }
+    };
 
-    // Senha Admin
-    window.checkPass = function() {
+    window.checkPass = () => {
         if(document.getElementById('pass-input').value === '1234') {
             document.getElementById('admin-auth').style.display = 'none';
             document.getElementById('admin-content').style.display = 'block';
-        } else {
-            alert("Senha incorreta!");
-        }
-    }
+        } else { alert("Senha incorreta!"); }
+    };
 
-    // SALVAR NO BANCO DE DADOS
-    window.salvarDados = async function() {
+    window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const qtd = parseInt(document.getElementById('input-registros').value);
-
         if(!nome || isNaN(qtd)) return alert("Preencha corretamente!");
 
         try {
-            const docRef = doc(db, "empresas", nome);
             const querySnapshot = await getDocs(collection(db, "empresas"));
             let totalAtual = 0;
+            querySnapshot.forEach((d) => { if(d.id === nome) totalAtual = d.data().total || 0; });
 
-            querySnapshot.forEach((d) => {
-                if(d.id === nome) totalAtual = d.data().total || 0;
-            });
-
-            await setDoc(docRef, { nome: nome, total: totalAtual + qtd });
+            await setDoc(doc(db, "empresas", nome), { nome: nome, total: totalAtual + qtd });
             document.getElementById('input-empresa').value = '';
             document.getElementById('input-registros').value = '';
-        } catch (e) {
-            console.error(e);
-            alert("Erro ao salvar! Verifique a conexão.");
-        }
-    }
+        } catch (e) { alert("Erro ao salvar! Verifique as Regras no Firebase."); }
+    };
 
-    // EXCLUIR/ZERAR
-    window.excluir = async function(id) {
-        if(confirm("Deseja remover esta empresa?")) {
-            await deleteDoc(doc(db, "empresas", id));
-        }
-    }
+    window.excluir = async (id) => {
+        if(confirm("Deseja zerar esta empresa?")) await deleteDoc(doc(db, "empresas", id));
+    };
 
-    // MONITORAR EM TEMPO REAL (MÁGICA DO FIREBASE)
+    // Monitorar dados
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
         
-        // Atualiza Tabela
         const corpo = document.getElementById('tabela-corpo');
         corpo.innerHTML = '';
         empresas.forEach(emp => {
-            corpo.innerHTML += `<tr><td><strong>${emp.nome}</strong></td><td>${emp.total}</td><td><button class="btn-del" onclick="excluir('${emp.nome}')">Zerar/Excluir</button></td></tr>`;
+            corpo.innerHTML += `<tr><td><strong>${emp.nome}</strong></td><td>${emp.total}</td><td><button class="btn-del" onclick="window.excluir('${emp.nome}')">Zerar/Excluir</button></td></tr>`;
         });
 
-        // Atualiza Dashboard
-        const totalGeral = empresas.reduce((sum, emp) => sum + emp.total, 0);
-        document.getElementById('total-geral').innerText = totalGeral;
+        document.getElementById('total-geral').innerText = empresas.reduce((sum, emp) => sum + emp.total, 0);
         document.getElementById('total-empresas').innerText = empresas.length;
 
         const ctx = document.getElementById('myChart').getContext('2d');
