@@ -1,96 +1,27 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root { --primary: #2ecc71; --dark: #2c3e50; --danger: #e74c3c; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        
-        /* Navegação */
-        nav { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        nav button { background: none; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; color: #7f8c8d; }
-        nav button.active { color: var(--dark); border-bottom: 3px solid var(--primary); }
+<script type="module">
+    // 1. Importando as ferramentas do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        .view { display: none; }
-        .view.active { display: block; }
+    // 2. CONFIGURAÇÃO DO SEU PROJETO (COPIE DO SEU PAINEL FIREBASE)
+    const firebaseConfig = {
+        apiKey: "COLE_AQUI_SUA_API_KEY",
+        authDomain: "camec-6a988.firebaseapp.com",
+        projectId: "camec-6a988",
+        storageBucket: "camec-6a988.appspot.com",
+        messagingSenderId: "COLE_AQUI",
+        appId: "COLE_AQUI"
+    };
 
-        /* Estilos Admin */
-        .admin-lock { text-align: center; padding: 40px; }
-        .form-group { display: flex; gap: 10px; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; flex: 1; }
-        button { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        .btn-main { background: var(--primary); color: white; }
-        .btn-del { background: var(--danger); color: white; padding: 5px 12px; font-size: 12px; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
-        th { background: #fafafa; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .card { background: #fff; padding: 20px; border: 1px solid #eee; border-radius: 8px; text-align: center; }
-        .big-number { font-size: 2em; font-weight: bold; color: var(--primary); }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <nav>
-        <button onclick="switchView('dashboard')" id="btn-dash" class="active">📊 Dashboard</button>
-        <button onclick="switchView('admin')" id="btn-admin">⚙️ Admin</button>
-    </nav>
-
-    <div id="view-dashboard" class="view active">
-        <div class="stats-grid">
-            <div class="card">
-                <p>Total de Registros (Mês)</p>
-                <div class="big-number" id="total-geral">0</div>
-            </div>
-            <div class="card">
-                <p>Empresas Ativas</p>
-                <div class="big-number" id="total-empresas">0</div>
-            </div>
-        </div>
-        <div style="margin-top: 30px;">
-            <canvas id="myChart"></canvas>
-        </div>
-    </div>
-
-    <div id="view-admin" class="view">
-        <div id="admin-auth" class="admin-lock">
-            <h3>🔒 Área Restrita</h3>
-            <input type="password" id="pass-input" placeholder="Digite a senha admin">
-            <button class="btn-main" onclick="checkPass()">Entrar</button>
-        </div>
-
-        <div id="admin-content" style="display: none;">
-            <div class="form-group">
-                <input type="text" id="input-empresa" placeholder="Nome da Empresa">
-                <input type="number" id="input-registros" placeholder="Qtd Registros">
-                <button class="btn-main" onclick="salvarDados()">Lançar Registro</button>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Empresa</th>
-                        <th>Total Acumulado</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-corpo"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<script>
-    let empresas = JSON.parse(localStorage.getItem('db_empresas')) || [];
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     let myChart = null;
 
-    function switchView(view) {
+    // --- FUNÇÕES DO SISTEMA ---
+
+    // Alternar entre Dashboard e Admin
+    window.switchView = function(view) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById('view-' + view).classList.add('active');
@@ -98,66 +29,87 @@
         if(view === 'dashboard') atualizarDashboard();
     }
 
-    function checkPass() {
+    // Login Simples
+    window.checkPass = function() {
         const pass = document.getElementById('pass-input').value;
-        if(pass === '1234') { // <--- Altere sua senha aqui
+        if(pass === '1234') { 
             document.getElementById('admin-auth').style.display = 'none';
             document.getElementById('admin-content').style.display = 'block';
-            renderizarTabela();
+            ouvirDados(); // Começa a ler o banco em tempo real
         } else {
             alert("Senha incorreta!");
         }
     }
 
-    function salvarDados() {
+    // SALVAR NO FIREBASE (Substitui o LocalStorage)
+    window.salvarDados = async function() {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const qtd = parseInt(document.getElementById('input-registros').value);
 
         if(!nome || isNaN(qtd)) return alert("Preencha corretamente!");
 
-        // Lógica de Agrupamento: Verifica se a empresa já existe
-        const index = empresas.findIndex(e => e.nome === nome);
-        
-        if(index > -1) {
-            empresas[index].total += qtd; // Soma ao que já existe
-        } else {
-            empresas.push({ nome: nome, total: qtd }); // Cria nova
-        }
+        try {
+            // No Firebase, usamos o nome da empresa como ID para somar automático
+            const docRef = doc(db, "empresas", nome);
+            const querySnapshot = await getDocs(collection(db, "empresas"));
+            let totalAtual = 0;
 
-        localStorage.setItem('db_empresas', JSON.stringify(empresas));
-        document.getElementById('input-empresa').value = '';
-        document.getElementById('input-registros').value = '';
-        renderizarTabela();
+            querySnapshot.forEach((d) => {
+                if(d.id === nome) totalAtual = d.data().total;
+            });
+
+            await setDoc(docRef, {
+                nome: nome,
+                total: totalAtual + qtd
+            });
+
+            document.getElementById('input-empresa').value = '';
+            document.getElementById('input-registros').value = '';
+            alert("Lançado com sucesso no Banco de Dados!");
+        } catch (e) {
+            console.error("Erro ao salvar:", e);
+        }
     }
 
-    function renderizarTabela() {
+    // LER DADOS EM TEMPO REAL (Isso faz o site atualizar sozinho para todos)
+    function ouvirDados() {
+        onSnapshot(collection(db, "empresas"), (snapshot) => {
+            const empresas = [];
+            snapshot.forEach((doc) => empresas.push(doc.data()));
+            renderizarTabela(empresas);
+            window.dadosAtuais = empresas; // Guarda para o Dashboard
+        });
+    }
+
+    function renderizarTabela(empresas) {
         const corpo = document.getElementById('tabela-corpo');
         corpo.innerHTML = '';
-        empresas.forEach((emp, i) => {
+        empresas.forEach((emp) => {
             corpo.innerHTML += `
                 <tr>
                     <td><strong>${emp.nome}</strong></td>
                     <td>${emp.total}</td>
-                    <td><button class="btn-del" onclick="excluir(${i})">Zerar/Excluir</button></td>
+                    <td><button class="btn-del" onclick="excluir('${emp.nome}')">Zerar/Excluir</button></td>
                 </tr>
             `;
         });
     }
 
-    function excluir(i) {
+    window.excluir = async function(nome) {
         if(confirm("Deseja remover esta empresa?")) {
-            empresas.splice(i, 1);
-            localStorage.setItem('db_empresas', JSON.stringify(empresas));
-            renderizarTabela();
+            await deleteDoc(doc(db, "empresas", nome));
         }
     }
 
-    function atualizarDashboard() {
+    window.atualizarDashboard = async function() {
+        const querySnapshot = await getDocs(collection(db, "empresas"));
+        const empresas = [];
+        querySnapshot.forEach((doc) => empresas.push(doc.data()));
+
         const totalGeral = empresas.reduce((sum, emp) => sum + emp.total, 0);
         document.getElementById('total-geral').innerText = totalGeral;
         document.getElementById('total-empresas').innerText = empresas.length;
 
-        // Gráfico
         const ctx = document.getElementById('myChart').getContext('2d');
         if(myChart) myChart.destroy();
         
@@ -171,13 +123,10 @@
                     backgroundColor: '#2ecc71'
                 }]
             },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            options: { responsive: true }
         });
     }
 
-    // Inicialização
+    // Iniciar Dashboard ao carregar
     atualizarDashboard();
 </script>
-
-</body>
-</html>
