@@ -3,149 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão de Produção | Enterprise</title>
+    <title>Gestão de Produção | CAMEC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        camec: {
+                            light: '#fdfbf9',
+                            gold: '#a16d2a',
+                            brown: '#633917',
+                            dark: '#3d220d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
         .view-section { display: none; }
-        .view-section.active { display: block; animation: fadeIn 0.2s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .nav-btn.active { background-color: #000; color: #fff; border-radius: 4px; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .table-res:hover { background-color: #fcfcfc; }
+        .view-section.active { display: block; }
+        .nav-btn.active { background-color: #633917; color: white; box-shadow: 0 4px 12px rgba(99, 57, 23, 0.3); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); border-color: #a16d2a; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #a16d2a; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-white text-black font-sans antialiased">
+<body class="bg-[#fdfbf9] text-camec-dark font-sans antialiased">
 
 <div class="min-h-screen flex flex-col md:flex-row">
-    <aside class="w-full md:w-64 bg-white border-r border-gray-100 p-6 flex flex-col">
-        <div class="flex items-center gap-3 mb-10 pb-4 border-b border-gray-50">
-            <div class="bg-black text-white p-2 text-xs font-black">PROD</div>
-            <h1 class="text-sm font-black uppercase tracking-tighter">Enterprise System</h1>
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 p-8 flex flex-col shadow-xl z-10">
+        <div class="mb-12 flex justify-center">
+            <img src="file:///M:/Camec/Carolina/CAMEC-SP/Logo-1.png" alt="file:///M:/Camec/Carolina/CAMEC-SP/Logo-1.png" class="w-48 h-auto object-contain">
         </div>
         
-        <nav class="space-y-1 flex-1">
-            <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 p-3 text-[11px] font-black transition uppercase">
-                <i class="fas fa-grid-2"></i> Dashboard
+        <nav class="space-y-2 flex-1">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4 ml-4">Menu Principal</p>
+            <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-4 p-4 text-xs font-bold transition-all rounded-xl">
+                <i class="fas fa-chart-line"></i> DASHBOARD
             </button>
-            <button onclick="switchView('grafico')" id="btn-grafico" class="nav-btn w-full flex items-center gap-3 p-3 text-[11px] font-black text-gray-400 hover:text-black transition uppercase">
-                <i class="fas fa-chart-simple"></i> Gráficos
+            <button onclick="switchView('grafico')" id="btn-grafico" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-bold text-gray-500 hover:text-camec-brown transition-all rounded-xl">
+                <i class="fas fa-pie-chart"></i> ANÁLISE VISUAL
             </button>
-            <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 p-3 text-[11px] font-black text-gray-400 hover:text-black transition uppercase">
-                <i class="fas fa-lock"></i> Administração
+            <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-4 p-4 text-xs font-bold text-gray-500 hover:text-camec-brown transition-all rounded-xl">
+                <i class="fas fa-user-shield"></i> ÁREA RESTRITA
             </button>
         </nav>
         
-        <div class="pt-4 border-t border-gray-50 text-[10px] text-gray-300 font-bold uppercase tracking-widest">
-            v2.1.0 Build
+        <div class="pt-6 border-t border-gray-100">
+            <div class="bg-camec-light p-4 rounded-lg">
+                <p class="text-[10px] text-camec-gold font-black uppercase tracking-widest">v2.1.0 Premium</p>
+                <p class="text-[9px] text-gray-400 mt-1 font-medium">CAMEC © 2026</p>
+            </div>
         </div>
     </aside>
 
-    <main class="flex-1 p-6 md:p-12">
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
         
-        <section id="view-dashboard" class="view-section active">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <section id="view-dashboard" class="view-section active animate-fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
                 <div>
-                    <h2 class="text-3xl font-black tracking-tighter uppercase">Visão Geral</h2>
-                    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Produção em Tempo Real</p>
+                    <h2 class="text-4xl font-black text-camec-brown tracking-tighter">Painel de Produção</h2>
+                    <div class="h-1 w-20 bg-camec-gold mt-2 rounded-full"></div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="exportToCSV()" class="bg-black text-white px-4 py-2 text-[10px] font-black uppercase hover:bg-gray-800 transition flex items-center gap-2">
-                        <i class="fas fa-download"></i> Exportar CSV
-                    </button>
+                <button onclick="exportToCSV()" class="bg-camec-brown text-white px-6 py-3 rounded-full text-[11px] font-black uppercase hover:bg-camec-dark transition-all shadow-lg flex items-center gap-3">
+                    <i class="fas fa-file-csv text-camec-gold"></i> Exportar Dados
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white border border-gray-50 p-6 rounded-2xl shadow-sm card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Registros</p>
+                        <i class="fas fa-database text-camec-gold"></i>
+                    </div>
+                    <span class="text-4xl font-black text-camec-brown tabular-nums" id="total-registros">0</span>
+                </div>
+                <div class="bg-white border border-gray-50 p-6 rounded-2xl shadow-sm card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">SMS</p>
+                        <i class="fas fa-comment-alt text-camec-gold"></i>
+                    </div>
+                    <span class="text-4xl font-black text-camec-brown tabular-nums" id="total-sms">0</span>
+                </div>
+                <div class="bg-white border border-gray-50 p-6 rounded-2xl shadow-sm card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">E-mails</p>
+                        <i class="fas fa-envelope text-camec-gold"></i>
+                    </div>
+                    <span class="text-4xl font-black text-camec-brown tabular-nums" id="total-email">0</span>
+                </div>
+                <div class="bg-white border border-gray-50 p-6 rounded-2xl shadow-sm card-hover">
+                    <div class="flex justify-between items-start mb-4">
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cartas</p>
+                        <i class="fas fa-paper-plane text-camec-gold"></i>
+                    </div>
+                    <span class="text-4xl font-black text-camec-brown tabular-nums" id="total-cartas">0</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="border border-gray-100 p-6 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Registros</p>
-                    <span class="text-3xl font-black tabular-nums" id="total-registros">0</span>
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-50">
+                <div class="p-6 border-b border-gray-50 bg-gray-50/50">
+                    <div class="relative max-w-md">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-camec-gold text-xs"></i>
+                        <input type="text" id="search-input" onkeyup="filterTable()" placeholder="Buscar empresa ou protocolo..." class="w-full bg-white border border-gray-200 p-3 pl-10 rounded-xl text-[11px] font-bold outline-none focus:border-camec-gold transition-all uppercase">
+                    </div>
                 </div>
-                <div class="border border-gray-100 p-6 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">SMS Enviados</p>
-                    <span class="text-3xl font-black tabular-nums" id="total-sms">0</span>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left" id="main-table">
+                        <thead class="bg-white text-[10px] font-black uppercase tracking-wider text-camec-gold">
+                            <tr>
+                                <th class="p-6">Empresa</th>
+                                <th class="p-6 text-center">Registros</th>
+                                <th class="p-6 text-center">SMS</th>
+                                <th class="p-6 text-center">E-mail</th>
+                                <th class="p-6 text-center">Cartas</th>
+                                <th class="p-6 text-right">Sincronização</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-dashboard" class="divide-y divide-gray-50 text-[11px] font-bold text-gray-600"></tbody>
+                    </table>
                 </div>
-                <div class="border border-gray-100 p-6 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">E-mails</p>
-                    <span class="text-3xl font-black tabular-nums" id="total-email">0</span>
-                </div>
-                <div class="border border-gray-100 p-6 shadow-sm">
-                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Cartas</p>
-                    <span class="text-3xl font-black tabular-nums" id="total-cartas">0</span>
-                </div>
-            </div>
-
-            <div class="mb-4 relative">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
-                <input type="text" id="search-input" onkeyup="filterTable()" placeholder="BUSCAR EMPRESA..." class="w-full border border-gray-100 p-4 pl-10 text-[11px] font-bold outline-none focus:border-black transition uppercase">
-            </div>
-
-            <div class="border border-gray-100 overflow-x-auto shadow-sm">
-                <table class="w-full text-left min-w-[700px]" id="main-table">
-                    <thead class="bg-gray-50 text-[10px] font-black uppercase tracking-wider text-gray-500">
-                        <tr>
-                            <th class="p-4 border-b">Empresa</th>
-                            <th class="p-4 border-b text-center">Registros</th>
-                            <th class="p-4 border-b text-center">SMS</th>
-                            <th class="p-4 border-b text-center">E-mail</th>
-                            <th class="p-4 border-b text-center">Cartas</th>
-                            <th class="p-4 border-b text-right">Último Update</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-dashboard" class="divide-y divide-gray-50 text-[11px] font-bold"></tbody>
-                </table>
             </div>
         </section>
 
-        <section id="view-grafico" class="view-section">
-            <h2 class="text-3xl font-black tracking-tighter uppercase mb-10">Análise Comparativa</h2>
-            <div class="bg-white border border-gray-100 p-8 h-[550px] shadow-sm">
+        <section id="view-grafico" class="view-section animate-fade-in">
+            <h2 class="text-3xl font-black text-camec-brown tracking-tighter mb-8 uppercase">Desempenho por Unidade</h2>
+            <div class="bg-white border border-gray-100 p-8 rounded-3xl shadow-2xl h-[600px]">
                 <canvas id="myChart"></canvas>
             </div>
         </section>
 
-        <section id="view-admin" class="view-section">
-            <div id="auth-container" class="max-w-md mx-auto mt-10">
-                <div class="border border-black p-10 shadow-2xl">
-                    <div class="text-center mb-8">
-                        <h3 class="font-black text-sm uppercase tracking-[0.2em]">Restricted Area</h3>
-                        <p class="text-gray-400 text-[10px] font-bold mt-2">INSIRA AS CREDENCIAIS VICTOR</p>
+        <section id="view-admin" class="view-section animate-fade-in">
+            <div id="auth-container" class="max-w-md mx-auto mt-20">
+                <div class="bg-white p-10 rounded-3xl shadow-2xl border border-gray-50 text-center">
+                    <div class="w-20 h-20 bg-camec-light rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-lock text-camec-gold text-2xl"></i>
                     </div>
-                    <input type="email" id="login-email" placeholder="E-MAIL" class="w-full p-4 mb-3 border border-gray-200 text-[11px] font-bold outline-none focus:border-black">
-                    <input type="password" id="login-pass" placeholder="PASSWORD" class="w-full p-4 mb-8 border border-gray-200 text-[11px] font-bold outline-none focus:border-black">
-                    <button onclick="handleLogin()" class="w-full bg-black text-white p-4 font-black text-xs hover:bg-gray-900 transition tracking-widest uppercase">Acessar Painel</button>
+                    <h3 class="font-black text-camec-brown text-lg uppercase tracking-widest mb-2">Acesso Restrito</h3>
+                    <p class="text-gray-400 text-[10px] font-bold mb-8">AUTENTICAÇÃO NECESSÁRIA</p>
+                    
+                    <div class="space-y-4">
+                        <input type="email" id="login-email" placeholder="E-MAIL CORPORATIVO" class="w-full p-4 bg-gray-50 rounded-xl border-none text-[11px] font-bold outline-none focus:ring-2 focus:ring-camec-gold transition-all">
+                        <input type="password" id="login-pass" placeholder="SENHA" class="w-full p-4 bg-gray-50 rounded-xl border-none text-[11px] font-bold outline-none focus:ring-2 focus:ring-camec-gold transition-all">
+                        <button onclick="handleLogin()" class="w-full bg-camec-brown text-white p-4 rounded-xl font-black text-xs hover:bg-camec-dark transition-all shadow-lg tracking-widest uppercase mt-4">Entrar no Sistema</button>
+                    </div>
                 </div>
             </div>
 
             <div id="panel-container" class="hidden">
-                <div class="flex justify-between items-center mb-10 pb-4 border-b-2 border-black">
-                    <h2 class="text-2xl font-black uppercase tracking-tighter italic">Lançamento de Produção</h2>
-                    <button onclick="handleLogout()" class="text-[10px] font-black bg-gray-100 px-4 py-2 hover:bg-black hover:text-white transition uppercase">Encerrar Sessão</button>
+                <div class="flex justify-between items-center mb-10 pb-6 border-b border-gray-100">
+                    <h2 class="text-3xl font-black text-camec-brown uppercase tracking-tighter italic">Lançamento de Dados</h2>
+                    <button onclick="handleLogout()" class="text-[10px] font-black text-red-500 bg-red-50 px-6 py-2 rounded-full hover:bg-red-500 hover:text-white transition-all uppercase">Sair</button>
                 </div>
 
-                <div class="bg-white p-8 border border-gray-100 shadow-sm mb-10">
-                    <p class="text-[10px] font-black mb-4 text-gray-400 uppercase tracking-widest">Novo Registro de Entrada</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                        <input type="text" id="input-empresa" placeholder="NOME EMPRESA" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
-                        <input type="number" id="input-registros" placeholder="REGISTROS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
-                        <input type="number" id="input-sms" placeholder="SMS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
-                        <input type="number" id="input-email" placeholder="E-MAIL" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
-                        <input type="number" id="input-carta" placeholder="CARTAS" class="p-3 border border-gray-200 outline-none text-[11px] font-black uppercase">
-                        <button onclick="salvarDados()" class="bg-black text-white p-3 font-black text-[10px] uppercase hover:invert transition">Confirmar</button>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl mb-10">
+                    <p class="text-[10px] font-black mb-6 text-camec-gold uppercase tracking-widest">Registrar Nova Produção</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <input type="text" id="input-empresa" placeholder="NOME DA EMPRESA" class="p-4 bg-gray-50 rounded-xl outline-none text-[11px] font-black uppercase border border-transparent focus:border-camec-gold transition-all">
+                        <input type="number" id="input-registros" placeholder="QTD REGISTROS" class="p-4 bg-gray-50 rounded-xl outline-none text-[11px] font-black uppercase border border-transparent focus:border-camec-gold transition-all">
+                        <input type="number" id="input-sms" placeholder="QTD SMS" class="p-4 bg-gray-50 rounded-xl outline-none text-[11px] font-black uppercase border border-transparent focus:border-camec-gold transition-all">
+                        <input type="number" id="input-email" placeholder="QTD E-MAIL" class="p-4 bg-gray-50 rounded-xl outline-none text-[11px] font-black uppercase border border-transparent focus:border-camec-gold transition-all">
+                        <input type="number" id="input-carta" placeholder="QTD CARTAS" class="p-4 bg-gray-50 rounded-xl outline-none text-[11px] font-black uppercase border border-transparent focus:border-camec-gold transition-all">
+                        <button onclick="salvarDados()" class="bg-camec-gold text-white p-4 rounded-xl font-black text-[11px] uppercase hover:bg-camec-brown transition-all shadow-lg">Confirmar Lançamento</button>
                     </div>
                 </div>
 
-                <div class="border border-gray-100 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-lg">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 border-b border-gray-100">
+                        <thead class="bg-gray-50/50 border-b border-gray-100">
                             <tr>
-                                <th class="p-4 font-black uppercase text-[10px] tracking-widest">Base de Dados</th>
-                                <th class="p-4 font-black text-right uppercase text-[10px] tracking-widest">Ações</th>
+                                <th class="p-6 font-black uppercase text-[10px] tracking-widest text-camec-brown">Base de Clientes Ativos</th>
+                                <th class="p-6 font-black text-right uppercase text-[10px] tracking-widest text-camec-brown">Gerenciar</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-admin" class="divide-y divide-gray-100"></tbody>
+                        <tbody id="tabela-admin" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -154,6 +196,7 @@
 </div>
 
 <script type="module">
+    // MANTENDO A LÓGICA DO FIREBASE ORIGINAL
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -169,17 +212,22 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let myChart = null;
-    let dadosLocais = []; // Para exportação e busca
+    let dadosLocais = [];
 
-    // Navegação
     window.switchView = (viewId) => {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-black', 'text-white'));
-        document.getElementById(`view-${viewId}`).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        const section = document.getElementById(`view-${viewId}`);
+        section.classList.add('active');
+        // Reinicia animação
+        section.style.animation = 'none';
+        section.offsetHeight; 
+        section.style.animation = null;
+
         document.getElementById(`btn-${viewId}`).classList.add('active');
     };
 
-    // Login com suas credenciais
     window.handleLogin = () => {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
@@ -187,9 +235,14 @@
         if(email === 'victor@camecsp.com.br' && pass === 'wuwg62Adm1n;') {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('panel-container').classList.remove('hidden');
-            Swal.fire({ icon: 'success', title: 'SISTEMA AUTORIZADO', toast: true, position: 'top-end', timer: 2000, showConfirmButton: false });
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'ACESSO CONCEDIDO', 
+                text: 'Bem-vindo, Victor.',
+                confirmButtonColor: '#633917'
+            });
         } else {
-            Swal.fire({ icon: 'error', title: 'CREDENCIAIS INVÁLIDAS', text: 'Tente novamente.' });
+            Swal.fire({ icon: 'error', title: 'FALHA NA AUTENTICAÇÃO', text: 'Credenciais incorretas.', confirmButtonColor: '#633917' });
         }
     };
 
@@ -199,7 +252,6 @@
         document.getElementById('login-pass').value = '';
     };
 
-    // Salvar Dados com Timestamp
     window.salvarDados = async () => {
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         const reg = parseInt(document.getElementById('input-registros').value) || 0;
@@ -220,16 +272,23 @@
             }, { merge: true });
 
             document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
-            Swal.fire({ icon: 'success', title: 'REGISTRADO', showConfirmButton: false, timer: 800 });
-        } catch (e) { Swal.fire('Erro', 'Falha no Firebase', 'error'); }
+            Swal.fire({ icon: 'success', title: 'DADOS COMPUTADOS', showConfirmButton: false, timer: 1000 });
+        } catch (e) { Swal.fire('Erro', 'Falha na conexão com banco de dados', 'error'); }
     };
 
     window.excluir = async (id) => {
-        const res = await Swal.fire({ title: 'Remover ' + id + '?', text: 'Isso limpará os dados permanentemente.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#000' });
+        const res = await Swal.fire({ 
+            title: 'Excluir ' + id + '?', 
+            text: 'Esta ação não poderá ser desfeita.', 
+            icon: 'warning', 
+            showCancelButton: true, 
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#633917',
+            confirmButtonText: 'Sim, deletar'
+        });
         if (res.isConfirmed) await deleteDoc(doc(db, "empresas", id));
     };
 
-    // Busca/Filtro
     window.filterTable = () => {
         const val = document.getElementById('search-input').value.toUpperCase();
         const rows = document.querySelectorAll('#tabela-dashboard tr');
@@ -238,55 +297,46 @@
         });
     };
 
-    // Exportação CSV
     window.exportToCSV = () => {
         if(dadosLocais.length === 0) return Swal.fire('Erro', 'Não há dados para exportar.', 'error');
-        
         let csv = 'Empresa,Registros,SMS,Email,Cartas\n';
-        dadosLocais.forEach(d => {
-            csv += `${d.nome},${d.registros || 0},${d.sms || 0},${d.email || 0},${d.cartas || 0}\n`;
-        });
-        
+        dadosLocais.forEach(d => { csv += `${d.nome},${d.registros || 0},${d.sms || 0},${d.email || 0},${d.cartas || 0}\n`; });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `Relatorio_Producao_${new Date().toLocaleDateString()}.csv`);
+        link.setAttribute("download", `CAMEC_Producao_${new Date().toLocaleDateString()}.csv`);
         link.click();
     };
 
-    // Listener Realtime
     onSnapshot(collection(db, "empresas"), (snapshot) => {
         const empresas = [];
         snapshot.forEach(doc => empresas.push(doc.data()));
         dadosLocais = empresas;
         
-        // Atualizar Totais
         document.getElementById('total-registros').innerText = empresas.reduce((s, e) => s + (e.registros || 0), 0).toLocaleString();
         document.getElementById('total-sms').innerText = empresas.reduce((s, e) => s + (e.sms || 0), 0).toLocaleString();
         document.getElementById('total-email').innerText = empresas.reduce((s, e) => s + (e.email || 0), 0).toLocaleString();
         document.getElementById('total-cartas').innerText = empresas.reduce((s, e) => s + (e.cartas || 0), 0).toLocaleString();
 
-        // Tabela Dashboard
         const tabDash = document.getElementById('tabela-dashboard');
         tabDash.innerHTML = empresas.map(emp => {
             const date = emp.lastUpdate ? emp.lastUpdate.toDate().toLocaleString('pt-BR', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'}) : '---';
             return `
-            <tr class="table-res transition">
-                <td class="p-4 text-black uppercase tracking-tighter font-black">${emp.nome}</td>
-                <td class="p-4 text-center tabular-nums text-gray-400">${emp.registros || 0}</td>
-                <td class="p-4 text-center tabular-nums text-gray-400">${emp.sms || 0}</td>
-                <td class="p-4 text-center tabular-nums text-gray-400">${emp.email || 0}</td>
-                <td class="p-4 text-center tabular-nums text-gray-400">${emp.cartas || 0}</td>
-                <td class="p-4 text-right text-[9px] text-gray-300 font-bold uppercase">${date}</td>
+            <tr class="hover:bg-camec-light transition-colors group">
+                <td class="p-6 text-camec-brown uppercase font-black tracking-tighter">${emp.nome}</td>
+                <td class="p-6 text-center tabular-nums font-medium text-gray-500">${emp.registros || 0}</td>
+                <td class="p-6 text-center tabular-nums font-medium text-gray-500">${emp.sms || 0}</td>
+                <td class="p-6 text-center tabular-nums font-medium text-gray-500">${emp.email || 0}</td>
+                <td class="p-6 text-center tabular-nums font-medium text-gray-500">${emp.cartas || 0}</td>
+                <td class="p-6 text-right text-[10px] text-camec-gold font-bold uppercase">${date}</td>
             </tr>`;
         }).join('');
 
-        // Tabela Admin
         document.getElementById('tabela-admin').innerHTML = empresas.map(emp => `
-            <tr>
-                <td class="p-4 font-black text-black uppercase text-[10px] tracking-widest">${emp.nome}</td>
-                <td class="p-4 text-right">
-                    <button onclick="excluir('${emp.nome}')" class="text-gray-200 hover:text-black transition p-2"><i class="fas fa-trash-alt"></i></button>
+            <tr class="group">
+                <td class="p-6 font-bold text-camec-brown uppercase text-[11px] tracking-widest">${emp.nome}</td>
+                <td class="p-6 text-right">
+                    <button onclick="excluir('${emp.nome}')" class="text-gray-300 hover:text-red-500 transition-all p-2 bg-gray-50 rounded-lg"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>`).join('');
 
@@ -296,30 +346,33 @@
     function updateChart(dados) {
         const ctx = document.getElementById('myChart').getContext('2d');
         const labels = dados.map(d => d.nome);
+        const config = {
+            labels: labels,
+            datasets: [
+                { label: 'REGISTROS', data: dados.map(d => d.registros), backgroundColor: '#633917' },
+                { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#a16d2a' },
+                { label: 'E-MAIL', data: dados.map(d => d.email), backgroundColor: '#d4b483' },
+                { label: 'CARTAS', data: dados.map(d => d.cartas), backgroundColor: '#f2e9dc' }
+            ]
+        };
+
         if (!myChart) {
             myChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'REGISTROS', data: dados.map(d => d.registros), backgroundColor: '#000' },
-                        { label: 'SMS', data: dados.map(d => d.sms), backgroundColor: '#555' },
-                        { label: 'E-MAIL', data: dados.map(d => d.email), backgroundColor: '#AAA' },
-                        { label: 'CARTAS', data: dados.map(d => d.cartas), backgroundColor: '#EEE', borderColor: '#DDD', borderWidth: 1 }
-                    ]
-                },
+                data: config,
                 options: { 
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', size: 9 } } } },
-                    scales: { y: { beginAtZero: true, grid: { color: '#F9F9F9' } }, x: { grid: { display: false } } }
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { font: { family: 'sans-serif', weight: '800', size: 10 }, color: '#633917' } } 
+                    },
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false } }
+                    }
                 }
             });
         } else {
-            myChart.data.labels = labels;
-            myChart.data.datasets[0].data = dados.map(d => d.registros);
-            myChart.data.datasets[1].data = dados.map(d => d.sms);
-            myChart.data.datasets[2].data = dados.map(d => d.email);
-            myChart.data.datasets[3].data = dados.map(d => d.cartas);
+            myChart.data = config;
             myChart.update();
         }
     }
