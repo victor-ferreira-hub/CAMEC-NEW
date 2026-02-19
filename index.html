@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMEC | Gestão de Produção</title>
+    <title>CAMEC | Produção Mensal</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -31,24 +29,15 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap');
-        
         body { font-family: 'Public Sans', sans-serif; background-color: #f8f9fa; color: #4a4a4a; }
         .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
         .view-section.active { display: block; }
-        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .nav-btn { transition: all 0.2s; border-radius: 6px; margin: 2px 0; color: #666; }
         .nav-btn.active { background-color: #a16d2a; color: white !important; }
-        .nav-btn:hover:not(.active) { background-color: #f0f0f0; }
-        
         .stat-card { background: white; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .icon-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(161, 109, 42, 0.1); color: #a16d2a; }
-        
         table thead th { background-color: #fcfcfc; color: #a0aec0; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.05em; border-bottom: 1px solid #edf2f7; }
-        input, select { border: 1px solid #e2e8f0 !important; border-radius: 6px !important; }
-        
-        /* Estilo para a lista de gerenciamento */
         .admin-item { transition: all 0.2s; border-left: 3px solid transparent; }
         .admin-item:hover { background-color: #fcfcfc; border-left-color: #a16d2a; transform: translateX(5px); }
     </style>
@@ -59,7 +48,6 @@
     <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shrink-0">
         <div class="p-8">
             <img src="Logo-1.png" alt="CAMEC" class="w-32 mb-10">
-            
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Navegação</p>
             <nav class="space-y-1">
                 <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-medium">
@@ -70,7 +58,6 @@
                 </button>
             </nav>
         </div>
-        
         <div class="mt-auto p-6 text-[10px] text-gray-400 border-t border-gray-50">
             <div class="flex items-center gap-2 mb-1">
                 <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
@@ -84,12 +71,12 @@
         <header class="h-20 bg-white/50 backdrop-blur-sm flex items-center justify-between px-10 shrink-0">
             <div>
                 <h1 id="page-title" class="font-bold text-xl text-camec-brown">Produção Mensal</h1>
-                <p class="text-xs text-gray-400">Acompanhe e gerencie indicadores</p>
+                <p class="text-xs text-gray-400">Dados consolidados do Firebase</p>
             </div>
             <div class="flex items-center gap-3">
-                <select id="filtro-mes" onchange="renderizarDashboard()" class="text-xs font-semibold px-4 py-2 bg-white outline-none cursor-pointer"></select>
-                <button onclick="exportToPDF()" class="bg-camec-brown text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-file-pdf"></i> PDF
+                <select id="filtro-mes" onchange="renderizarDashboard()" class="text-xs font-semibold px-4 py-2 bg-white border rounded-lg outline-none cursor-pointer"></select>
+                <button onclick="exportToPDF()" class="bg-camec-brown text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90">
+                    <i class="fas fa-file-pdf"></i> Gerar PDF
                 </button>
             </div>
         </header>
@@ -98,42 +85,28 @@
             <section id="view-dashboard" class="view-section active">
                 <div class="grid grid-cols-4 gap-6 mb-10">
                     <div class="stat-card p-5 relative">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4">Total Registros</span>
-                            <h3 class="text-2xl font-bold text-camec-brown" id="total-registros">0</h3>
-                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4 block">Registros Base</span>
+                        <h3 class="text-2xl font-bold text-camec-brown" id="total-registros">0</h3>
                         <div class="absolute top-5 right-5 icon-circle"><i class="fas fa-database text-xs"></i></div>
                     </div>
                     <div class="stat-card p-5 relative">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4">Total SMS</span>
-                            <h3 class="text-2xl font-bold text-camec-brown" id="total-sms">0</h3>
-                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4 block">Total SMS</span>
+                        <h3 class="text-2xl font-bold text-camec-brown" id="total-sms">0</h3>
                         <div class="absolute top-5 right-5 icon-circle"><i class="fas fa-comment-alt text-xs"></i></div>
                     </div>
                     <div class="stat-card p-5 relative">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4">Total E-mails</span>
-                            <h3 class="text-2xl font-bold text-camec-brown" id="total-email">0</h3>
-                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4 block">Total E-mails</span>
+                        <h3 class="text-2xl font-bold text-camec-brown" id="total-email">0</h3>
                         <div class="absolute top-5 right-5 icon-circle"><i class="fas fa-envelope text-xs"></i></div>
                     </div>
                     <div class="stat-card p-5 relative">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4">Total Cartas</span>
-                            <h3 class="text-2xl font-bold text-camec-brown" id="total-cartas">0</h3>
-                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-4 block">Total Cartas</span>
+                        <h3 class="text-2xl font-bold text-camec-brown" id="total-cartas">0</h3>
                         <div class="absolute top-5 right-5 icon-circle"><i class="fas fa-paper-plane text-xs"></i></div>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-gray-50 flex justify-between items-center">
-                        <div class="relative w-72">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs"></i>
-                            <input type="text" id="search-cliente" onkeyup="filterTable()" placeholder="Buscar empresa..." class="w-full pl-9 pr-4 py-2 text-xs bg-gray-50/50 outline-none">
-                        </div>
-                    </div>
                     <table class="w-full text-left" id="main-table">
                         <thead>
                             <tr>
@@ -153,50 +126,31 @@
 
             <section id="view-admin" class="view-section">
                 <div id="auth-container" class="max-w-md mx-auto mt-20 bg-white p-10 rounded-2xl border border-gray-100 shadow-xl text-center">
-                    <div class="w-16 h-16 bg-camec-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 text-camec-gold text-2xl">
-                        <i class="fas fa-lock"></i>
-                    </div>
-                    <h3 class="font-bold text-lg mb-2">Área Administrativa</h3>
-                    <p class="text-gray-400 text-xs mb-8">Insira sua chave de acesso</p>
-                    <input type="password" id="login-pass" class="w-full p-3 mb-4 text-center font-bold tracking-widest bg-gray-50 outline-none">
-                    <button onclick="handleLogin()" class="w-full bg-camec-brown text-white py-3 rounded-lg font-bold hover:opacity-90">Entrar</button>
+                    <div class="w-16 h-16 bg-camec-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 text-camec-gold text-2xl"><i class="fas fa-lock"></i></div>
+                    <h3 class="font-bold text-lg mb-2">Painel de Controle</h3>
+                    <input type="password" id="login-pass" class="w-full p-3 mb-4 text-center font-bold bg-gray-50 rounded-lg outline-none">
+                    <button onclick="handleLogin()" class="w-full bg-camec-brown text-white py-3 rounded-lg font-bold">Acessar</button>
                 </div>
 
                 <div id="panel-container" class="hidden max-w-5xl mx-auto space-y-8">
                     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                        <h2 class="font-bold mb-8 flex items-center gap-2 text-camec-brown"><i class="fas fa-plus-circle text-camec-gold"></i> Novo Registro</h2>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="col-span-2">
-                                <label class="text-[10px] font-bold uppercase text-gray-400 mb-2 block">Nome da Empresa</label>
-                                <input type="text" id="input-empresa" class="w-full p-3 bg-gray-50 outline-none">
+                        <h2 class="font-bold mb-6 text-camec-brown">Novo Lançamento</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="input-empresa" placeholder="NOME DA EMPRESA" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-sm">
+                            <select id="input-mes" class="w-full p-3 bg-gray-50 rounded-lg outline-none font-bold text-sm"></select>
+                            <input type="number" id="input-registros" placeholder="QTD REGISTROS" class="p-3 bg-gray-50 rounded-lg outline-none">
+                            <div class="grid grid-cols-4 gap-2 col-span-2">
+                                <input type="number" id="input-sms" placeholder="SMS" class="p-3 bg-gray-50 rounded-lg outline-none">
+                                <input type="number" id="input-email" placeholder="EMAIL" class="p-3 bg-gray-50 rounded-lg outline-none">
+                                <input type="number" id="input-whatsapp" placeholder="WPP" class="p-3 bg-gray-50 rounded-lg outline-none">
+                                <input type="number" id="input-carta" placeholder="CARTAS" class="p-3 bg-gray-50 rounded-lg outline-none">
                             </div>
-                            <div>
-                                <label class="text-[10px] font-bold uppercase text-gray-400 mb-2 block">Mês de Referência</label>
-                                <select id="input-mes" class="w-full p-3 bg-gray-50 outline-none"></select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold uppercase text-gray-400 mb-2 block">Total Registros</label>
-                                <input type="number" id="input-registros" class="w-full p-3 bg-gray-50 outline-none">
-                            </div>
-                            <div class="grid grid-cols-4 gap-4 col-span-2">
-                                <div><label class="text-[10px] font-bold text-gray-400 block mb-1 uppercase">SMS</label><input type="number" id="input-sms" class="w-full p-2 bg-gray-50 outline-none"></div>
-                                <div><label class="text-[10px] font-bold text-gray-400 block mb-1 uppercase">E-mail</label><input type="number" id="input-email" class="w-full p-2 bg-gray-50 outline-none"></div>
-                                <div><label class="text-[10px] font-bold text-gray-400 block mb-1 uppercase">Wpp</label><input type="number" id="input-whatsapp" class="w-full p-2 bg-gray-50 outline-none"></div>
-                                <div><label class="text-[10px] font-bold text-gray-400 block mb-1 uppercase">Cartas</label><input type="number" id="input-carta" class="w-full p-2 bg-gray-50 outline-none"></div>
-                            </div>
-                            <button onclick="salvarDados()" class="col-span-2 bg-camec-gold text-white py-4 rounded-xl font-bold uppercase mt-4 hover:opacity-90 transition-opacity">
-                                <i class="fas fa-save mr-2"></i> Salvar Registro no Banco
-                            </button>
+                            <button onclick="salvarDados()" class="col-span-2 bg-camec-gold text-white py-4 rounded-xl font-bold uppercase hover:opacity-90">Salvar Dados</button>
                         </div>
                     </div>
-
                     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="font-bold flex items-center gap-2 text-camec-brown"><i class="fas fa-tasks text-camec-gold"></i> Gerenciar Registros Existentes</h2>
-                            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500 font-bold uppercase" id="count-admin">0 Registros</span>
-                        </div>
-                        <div id="lista-gerenciamento" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-                            </div>
+                        <h2 class="font-bold mb-6 text-camec-brown">Gerenciar Cadastros</h2>
+                        <div id="lista-gerenciamento" class="space-y-2 max-h-96 overflow-y-auto"></div>
                     </div>
                 </div>
             </section>
@@ -221,124 +175,137 @@
     const db = getFirestore(app);
     let dadosLocais = [];
 
+    // Meses
     const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
     const popularMeses = () => {
         const selectFiltro = document.getElementById('filtro-mes');
         const selectInput = document.getElementById('input-mes');
-        const mesAtualIdx = new Date().getMonth();
         let options = `<option value="NOVEMBRO_2025">Novembro 2025</option><option value="DEZEMBRO_2025">Dezembro 2025</option>`;
-        MESES.forEach((mes, idx) => {
-            const val = `${mes.toUpperCase()}_2026`;
-            options += `<option value="${val}" ${idx === mesAtualIdx ? 'selected' : ''}>${mes} 2026</option>`;
-        });
+        MESES.forEach(mes => { options += `<option value="${mes.toUpperCase()}_2026">${mes} 2026</option>`; });
         selectFiltro.innerHTML = options;
         selectInput.innerHTML = options;
     };
 
+    // Navegação
     window.switchView = (viewId) => {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`view-${viewId}`).classList.add('active');
         document.getElementById(`btn-${viewId}`).classList.add('active');
-        document.getElementById('page-title').innerText = viewId === 'dashboard' ? 'Produção Mensal' : 'Administrativo';
     };
 
+    // Auth
     window.handleLogin = () => {
         if(document.getElementById('login-pass').value === 'wuwg62Adm1n;') {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('panel-container').classList.remove('hidden');
-        } else { Swal.fire('Erro', 'Chave de acesso inválida', 'error'); }
+        } else { Swal.fire('Erro', 'Chave inválida', 'error'); }
     };
 
+    // Salvar
     window.salvarDados = async () => {
-        const mesRef = document.getElementById('input-mes').value;
+        const mes = document.getElementById('input-mes').value;
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
-        const reg = parseInt(document.getElementById('input-registros').value) || 0;
-        const sms = parseInt(document.getElementById('input-sms').value) || 0;
-        const eml = parseInt(document.getElementById('input-email').value) || 0;
-        const wpp = parseInt(document.getElementById('input-whatsapp').value) || 0;
-        const crt = parseInt(document.getElementById('input-carta').value) || 0;
-
-        if(!nome) return Swal.fire('Atenção', 'Digite o nome da empresa', 'warning');
-
-        const docId = `${mesRef}_${nome}`;
-        try {
-            await setDoc(doc(db, "producao_mensal", docId), { 
-                id: docId, mes: mesRef, nome, 
-                registros: increment(reg), sms: increment(sms), 
-                email: increment(eml), whatsapp: increment(wpp), cartas: increment(crt), 
-                lastUpdate: serverTimestamp()
-            }, { merge: true });
-
-            document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
-            Swal.fire({ icon: 'success', title: 'Sucesso', text: 'Dados atualizados no Firebase', timer: 1500, showConfirmButton: false });
-        } catch(e) { Swal.fire('Erro', 'Falha ao salvar', 'error'); }
-    };
-
-    window.excluirRegistro = async (id) => {
-        const result = await Swal.fire({
-            title: 'Remover Registro?',
-            text: "Deseja excluir permanentemente este registro da base de dados?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3d2b1f',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, remover',
-            cancelButtonText: 'Cancelar'
+        if(!nome) return Swal.fire('Aviso', 'Nome da empresa é obrigatório', 'warning');
+        
+        const docId = `${mes}_${nome}`;
+        await setDoc(doc(db, "producao_mensal", docId), {
+            id: docId, mes, nome,
+            registros: parseInt(document.getElementById('input-registros').value)||0,
+            sms: parseInt(document.getElementById('input-sms').value)||0,
+            email: parseInt(document.getElementById('input-email').value)||0,
+            whatsapp: parseInt(document.getElementById('input-whatsapp').value)||0,
+            cartas: parseInt(document.getElementById('input-carta').value)||0
         });
-        
-        if (result.isConfirmed) {
-            try {
-                await deleteDoc(doc(db, "producao_mensal", id));
-                Swal.fire('Removido', 'O registro foi excluído com sucesso.', 'success');
-            } catch(e) {
-                Swal.fire('Erro', 'Não foi possível excluir o registro.', 'error');
-            }
-        }
+        Swal.fire('Salvo', '', 'success');
+        document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
     };
 
+    // Excluir
+    window.excluirRegistro = async (id) => {
+        const confirm = await Swal.fire({ title: 'Excluir?', showCancelButton: true });
+        if(confirm.isConfirmed) await deleteDoc(doc(db, "producao_mensal", id));
+    };
+
+    // Renderização
     window.renderizarDashboard = () => {
-        const mesSelecionado = document.getElementById('filtro-mes').value;
-        const filtrados = dadosLocais.filter(d => d.mes === mesSelecionado);
+        const mesSel = document.getElementById('filtro-mes').value;
+        const filtrados = dadosLocais.filter(d => d.mes === mesSel);
         
-        const totais = {
-            reg: filtrados.reduce((s, e) => s + (e.registros || 0), 0),
-            sms: filtrados.reduce((s, e) => s + (e.sms || 0), 0),
-            eml: filtrados.reduce((s, e) => s + (e.email || 0), 0),
-            crt: filtrados.reduce((s, e) => s + (e.cartas || 0), 0)
-        };
+        document.getElementById('total-registros').innerText = filtrados.reduce((s,e) => s+(e.registros||0),0).toLocaleString();
+        document.getElementById('total-sms').innerText = filtrados.reduce((s,e) => s+(e.sms||0),0).toLocaleString();
+        document.getElementById('total-email').innerText = filtrados.reduce((s,e) => s+(e.email||0),0).toLocaleString();
+        document.getElementById('total-cartas').innerText = filtrados.reduce((s,e) => s+(e.cartas||0),0).toLocaleString();
 
-        document.getElementById('total-registros').innerText = totais.reg.toLocaleString();
-        document.getElementById('total-sms').innerText = totais.sms.toLocaleString();
-        document.getElementById('total-email').innerText = totais.eml.toLocaleString();
-        document.getElementById('total-cartas').innerText = totais.crt.toLocaleString();
-
-        const tabDash = document.getElementById('tabela-dashboard');
-        tabDash.innerHTML = filtrados.map(emp => `
-            <tr class="hover:bg-gray-50 transition-colors">
-                <td class="px-8 py-4 font-bold text-gray-700">${emp.nome}</td>
-                <td class="px-6 py-4 text-center text-gray-500">${(emp.registros || 0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-gray-500">${(emp.sms || 0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-gray-500">${(emp.email || 0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-gray-500">${(emp.whatsapp || 0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-gray-500">${(emp.cartas || 0).toLocaleString()}</td>
-                <td class="px-8 py-4 text-right font-bold text-[10px] text-camec-gold uppercase">${emp.mes.replace('_', ' ')}</td>
+        document.getElementById('tabela-dashboard').innerHTML = filtrados.map(e => `
+            <tr>
+                <td class="px-8 py-4 font-bold text-gray-700">${e.nome}</td>
+                <td class="px-6 py-4 text-center">${(e.registros||0).toLocaleString()}</td>
+                <td class="px-6 py-4 text-center">${(e.sms||0).toLocaleString()}</td>
+                <td class="px-6 py-4 text-center">${(e.email||0).toLocaleString()}</td>
+                <td class="px-6 py-4 text-center">${(e.whatsapp||0).toLocaleString()}</td>
+                <td class="px-6 py-4 text-center">${(e.cartas||0).toLocaleString()}</td>
+                <td class="px-8 py-4 text-right text-[10px] font-bold text-camec-gold">${e.mes.replace('_',' ')}</td>
             </tr>`).join('');
-            
-        // Renderizar Lista de Gerenciamento na área Admin
-        const listaAdmin = document.getElementById('lista-gerenciamento');
-        document.getElementById('count-admin').innerText = `${dadosLocais.length} Registros`;
-        listaAdmin.innerHTML = dadosLocais.sort((a,b) => a.nome.localeCompare(b.nome)).map(emp => `
-            <div class="admin-item p-4 bg-white border border-gray-100 rounded-xl flex justify-between items-center group shadow-sm">
-                <div>
-                    <h4 class="font-bold text-sm text-gray-700 uppercase">${emp.nome}</h4>
-                    <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">${emp.mes.replace('_', ' ')}</p>
-                </div>
-                <button onclick="excluirRegistro('${emp.id}')" class="w-10 h-10 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
-                    <i class="fas fa-trash-alt text-xs"></i>
-                </button>
+
+        document.getElementById('lista-gerenciamento').innerHTML = dadosLocais.sort((a,b)=>a.nome.localeCompare(b.nome)).map(e => `
+            <div class="admin-item p-4 bg-white border rounded-xl flex justify-between items-center shadow-sm">
+                <div><h4 class="font-bold text-xs">${e.nome}</h4><p class="text-[9px] text-gray-400 font-bold">${e.mes}</p></div>
+                <button onclick="excluirRegistro('${e.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
             </div>`).join('');
+    };
+
+    // --- CORREÇÃO DO PDF ---
+    window.exportToPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'pt', 'a4');
+        const mesSel = document.getElementById('filtro-mes').value;
+        const filtrados = dadosLocais.filter(d => d.mes === mesSel);
+
+        if(filtrados.length === 0) return Swal.fire('Aviso', 'Não há dados para este mês', 'info');
+
+        // Título e Design
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(61, 43, 31);
+        doc.text("CAMEC - RELATÓRIO DE PRODUÇÃO", 40, 50);
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100);
+        doc.text(`Período de Referência: ${mesSel.replace('_', ' ')}`, 40, 70);
+        doc.text(`Gerado em: ${new Date().toLocaleString()}`, 40, 85);
+
+        // Mapeamento dos dados para a tabela
+        const tableBody = filtrados.map(e => [
+            e.nome, 
+            (e.registros||0).toLocaleString(),
+            (e.sms||0).toLocaleString(),
+            (e.email||0).toLocaleString(),
+            (e.whatsapp||0).toLocaleString(),
+            (e.cartas||0).toLocaleString()
+        ]);
+
+        // Geração da Tabela
+        doc.autoTable({
+            startY: 110,
+            head: [['EMPRESA', 'REGISTROS', 'SMS', 'E-MAIL', 'WPP', 'CARTAS']],
+            body: tableBody,
+            theme: 'striped',
+            headStyles: { fillColor: [161, 109, 42], textColor: 255, fontSize: 9, halign: 'center' },
+            columnStyles: {
+                0: { fontStyle: 'bold', halign: 'left' },
+                1: { halign: 'center' },
+                2: { halign: 'center' },
+                3: { halign: 'center' },
+                4: { halign: 'center' },
+                5: { halign: 'center' }
+            },
+            styles: { fontSize: 8, cellPadding: 8 }
+        });
+
+        // Nome do arquivo baseado no mês
+        doc.save(`PRODUCAO_CAMEC_${mesSel}.pdf`);
     };
 
     onSnapshot(collection(db, "producao_mensal"), (snapshot) => {
@@ -348,7 +315,6 @@
     });
 
     popularMeses();
-    window.excluirRegistro = excluirRegistro; // Garante acesso global
 </script>
 </body>
 </html>
