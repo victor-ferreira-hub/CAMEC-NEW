@@ -202,22 +202,27 @@
         } else { Swal.fire('Erro', 'Chave inválida', 'error'); }
     };
 
-    // Salvar
+    // --- CORREÇÃO: SALVAR ACUMULANDO VALORES ---
     window.salvarDados = async () => {
         const mes = document.getElementById('input-mes').value;
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
         if(!nome) return Swal.fire('Aviso', 'Nome da empresa é obrigatório', 'warning');
         
         const docId = `${mes}_${nome}`;
+        
+        // Usamos setDoc com { merge: true } e increment() para somar aos valores existentes
         await setDoc(doc(db, "producao_mensal", docId), {
-            id: docId, mes, nome,
-            registros: parseInt(document.getElementById('input-registros').value)||0,
-            sms: parseInt(document.getElementById('input-sms').value)||0,
-            email: parseInt(document.getElementById('input-email').value)||0,
-            whatsapp: parseInt(document.getElementById('input-whatsapp').value)||0,
-            cartas: parseInt(document.getElementById('input-carta').value)||0
-        });
-        Swal.fire('Salvo', '', 'success');
+            id: docId, 
+            mes, 
+            nome,
+            registros: increment(parseInt(document.getElementById('input-registros').value) || 0),
+            sms: increment(parseInt(document.getElementById('input-sms').value) || 0),
+            email: increment(parseInt(document.getElementById('input-email').value) || 0),
+            whatsapp: increment(parseInt(document.getElementById('input-whatsapp').value) || 0),
+            cartas: increment(parseInt(document.getElementById('input-carta').value) || 0)
+        }, { merge: true });
+
+        Swal.fire('Sucesso', 'Dados adicionados ao histórico com sucesso!', 'success');
         document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
     };
 
@@ -255,7 +260,7 @@
             </div>`).join('');
     };
 
-    // --- CORREÇÃO DO PDF ---
+    // PDF
     window.exportToPDF = () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'pt', 'a4');
@@ -264,7 +269,6 @@
 
         if(filtrados.length === 0) return Swal.fire('Aviso', 'Não há dados para este mês', 'info');
 
-        // Título e Design
         doc.setFont("helvetica", "bold");
         doc.setFontSize(18);
         doc.setTextColor(61, 43, 31);
@@ -276,7 +280,6 @@
         doc.text(`Período de Referência: ${mesSel.replace('_', ' ')}`, 40, 70);
         doc.text(`Gerado em: ${new Date().toLocaleString()}`, 40, 85);
 
-        // Mapeamento dos dados para a tabela
         const tableBody = filtrados.map(e => [
             e.nome, 
             (e.registros||0).toLocaleString(),
@@ -286,7 +289,6 @@
             (e.cartas||0).toLocaleString()
         ]);
 
-        // Geração da Tabela
         doc.autoTable({
             startY: 110,
             head: [['EMPRESA', 'REGISTROS', 'SMS', 'E-MAIL', 'WPP', 'CARTAS']],
@@ -304,7 +306,6 @@
             styles: { fontSize: 8, cellPadding: 8 }
         });
 
-        // Nome do arquivo baseado no mês
         doc.save(`PRODUCAO_CAMEC_${mesSel}.pdf`);
     };
 
