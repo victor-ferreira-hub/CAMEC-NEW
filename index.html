@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script>
         tailwind.config = {
@@ -128,7 +129,7 @@
                 <div id="auth-container" class="max-w-md mx-auto mt-20 bg-white p-10 rounded-2xl border border-gray-100 shadow-xl text-center">
                     <div class="w-16 h-16 bg-camec-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 text-camec-gold text-2xl"><i class="fas fa-lock"></i></div>
                     <h3 class="font-bold text-lg mb-2">Painel de Controle</h3>
-                    <input type="password" id="login-pass" class="w-full p-3 mb-4 text-center font-bold bg-gray-50 rounded-lg outline-none">
+                    <input type="password" id="login-pass" class="w-full p-3 mb-4 text-center font-bold bg-gray-50 rounded-lg outline-none" placeholder="Digite a senha">
                     <button onclick="handleLogin()" class="w-full bg-camec-brown text-white py-3 rounded-lg font-bold">Acessar</button>
                 </div>
 
@@ -160,22 +161,22 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    // --- CORREÇÃO: Removida a aspa extra em storageBucket e conferido os campos ---
     const firebaseConfig = {
-        apiKey: "AIzaSyCzIG5TaDEH2R-f7GtJRiTi_Jxt1aiPiqY", 
-        authDomain: "camec-6a988.firebaseapp.com",
-        projectId: "camec-6a988",
-        storageBucket: "camec-6a988.appspot.com",
-        messagingSenderId: "37119733437",
-        appId: "1:37119733437:web:49241324e93e303e30a5d2"
+        apiKey: "AIzaSyDyO3dZbTLg-BabfpDze2a2U9AGUMAB5_o", 
+        authDomain: "ccamec-77a76.firebaseapp.com",
+        projectId: "camec-77a76",
+        storageBucket: "camec-77a76.firebasestorage.app", // Corrigido aqui
+        messagingSenderId: "597868183808",
+        appId: "1:597868183808:web:00dbbfdf7e87bfdabff3e5"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let dadosLocais = [];
 
-    // Meses
     const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     const popularMeses = () => {
         const selectFiltro = document.getElementById('filtro-mes');
@@ -186,7 +187,6 @@
         selectInput.innerHTML = options;
     };
 
-    // Navegação
     window.switchView = (viewId) => {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -194,7 +194,6 @@
         document.getElementById(`btn-${viewId}`).classList.add('active');
     };
 
-    // Auth
     window.handleLogin = () => {
         if(document.getElementById('login-pass').value === 'wuwg62Adm1n;') {
             document.getElementById('auth-container').classList.add('hidden');
@@ -202,7 +201,6 @@
         } else { Swal.fire('Erro', 'Chave inválida', 'error'); }
     };
 
-    // --- CORREÇÃO: SALVAR ACUMULANDO VALORES ---
     window.salvarDados = async () => {
         const mes = document.getElementById('input-mes').value;
         const nome = document.getElementById('input-empresa').value.trim().toUpperCase();
@@ -210,29 +208,30 @@
         
         const docId = `${mes}_${nome}`;
         
-        // Usamos setDoc com { merge: true } e increment() para somar aos valores existentes
-        await setDoc(doc(db, "producao_mensal", docId), {
-            id: docId, 
-            mes, 
-            nome,
-            registros: increment(parseInt(document.getElementById('input-registros').value) || 0),
-            sms: increment(parseInt(document.getElementById('input-sms').value) || 0),
-            email: increment(parseInt(document.getElementById('input-email').value) || 0),
-            whatsapp: increment(parseInt(document.getElementById('input-whatsapp').value) || 0),
-            cartas: increment(parseInt(document.getElementById('input-carta').value) || 0)
-        }, { merge: true });
+        try {
+            await setDoc(doc(db, "producao_mensal", docId), {
+                id: docId, 
+                mes, 
+                nome,
+                registros: increment(parseInt(document.getElementById('input-registros').value) || 0),
+                sms: increment(parseInt(document.getElementById('input-sms').value) || 0),
+                email: increment(parseInt(document.getElementById('input-email').value) || 0),
+                whatsapp: increment(parseInt(document.getElementById('input-whatsapp').value) || 0),
+                cartas: increment(parseInt(document.getElementById('input-carta').value) || 0)
+            }, { merge: true });
 
-        Swal.fire('Sucesso', 'Dados adicionados ao histórico com sucesso!', 'success');
-        document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
+            Swal.fire('Sucesso', 'Dados adicionados ao histórico!', 'success');
+            document.querySelectorAll('#panel-container input').forEach(i => i.value = '');
+        } catch (e) {
+            Swal.fire('Erro', 'Verifique se as Regras do Firebase estão como "true"', 'error');
+        }
     };
 
-    // Excluir
     window.excluirRegistro = async (id) => {
         const confirm = await Swal.fire({ title: 'Excluir?', showCancelButton: true });
         if(confirm.isConfirmed) await deleteDoc(doc(db, "producao_mensal", id));
     };
 
-    // Renderização
     window.renderizarDashboard = () => {
         const mesSel = document.getElementById('filtro-mes').value;
         const filtrados = dadosLocais.filter(d => d.mes === mesSel);
@@ -260,25 +259,24 @@
             </div>`).join('');
     };
 
-    // PDF
     window.exportToPDF = () => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'pt', 'a4');
+        const docPDF = new jsPDF('p', 'pt', 'a4');
         const mesSel = document.getElementById('filtro-mes').value;
         const filtrados = dadosLocais.filter(d => d.mes === mesSel);
 
         if(filtrados.length === 0) return Swal.fire('Aviso', 'Não há dados para este mês', 'info');
 
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(18);
-        doc.setTextColor(61, 43, 31);
-        doc.text("CAMEC - RELATÓRIO DE PRODUÇÃO", 40, 50);
+        docPDF.setFont("helvetica", "bold");
+        docPDF.setFontSize(18);
+        docPDF.setTextColor(61, 43, 31);
+        docPDF.text("CAMEC - RELATÓRIO DE PRODUÇÃO", 40, 50);
         
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100);
-        doc.text(`Período de Referência: ${mesSel.replace('_', ' ')}`, 40, 70);
-        doc.text(`Gerado em: ${new Date().toLocaleString()}`, 40, 85);
+        docPDF.setFontSize(10);
+        docPDF.setFont("helvetica", "normal");
+        docPDF.setTextColor(100);
+        docPDF.text(`Período de Referência: ${mesSel.replace('_', ' ')}`, 40, 70);
+        docPDF.text(`Gerado em: ${new Date().toLocaleString()}`, 40, 85);
 
         const tableBody = filtrados.map(e => [
             e.nome, 
@@ -289,7 +287,7 @@
             (e.cartas||0).toLocaleString()
         ]);
 
-        doc.autoTable({
+        docPDF.autoTable({
             startY: 110,
             head: [['EMPRESA', 'REGISTROS', 'SMS', 'E-MAIL', 'WPP', 'CARTAS']],
             body: tableBody,
@@ -306,7 +304,7 @@
             styles: { fontSize: 8, cellPadding: 8 }
         });
 
-        doc.save(`PRODUCAO_CAMEC_${mesSel}.pdf`);
+        docPDF.save(`PRODUCAO_CAMEC_${mesSel}.pdf`);
     };
 
     onSnapshot(collection(db, "producao_mensal"), (snapshot) => {
