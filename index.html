@@ -46,10 +46,10 @@
         <div class="p-8">
             <h1 class="text-2xl font-black text-camec-gold tracking-tighter mb-10">CAMEC</h1>
             <nav class="space-y-1">
-                <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400">
+                <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </button>
-                <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400">
+                <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
                     <i class="fas fa-cog"></i> Administração
                 </button>
             </nav>
@@ -83,7 +83,6 @@
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm relative">
                         <span class="text-[9px] font-bold text-gray-400 uppercase">Registros</span>
                         <h3 class="text-2xl font-black text-camec-brown" id="total-registros">0</h3>
-                        <div id="comp-registros" class="text-[10px] font-bold mt-1"></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
                         <span class="text-[9px] font-bold text-gray-400 uppercase">SMS</span>
@@ -140,18 +139,41 @@
 
                 <div id="admin-panel" class="hidden max-w-4xl mx-auto space-y-6">
                     <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                        <h2 id="form-title" class="text-sm font-bold uppercase mb-6 text-camec-gold">Novo Lançamento</h2>
+                        <h2 id="form-title" class="text-sm font-bold uppercase mb-6 text-camec-gold">Lançamento de Dados</h2>
                         <input type="hidden" id="edit-id">
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="text" id="in-empresa" placeholder="NOME DA EMPRESA" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border focus:border-camec-gold">
-                            <select id="in-mes" class="w-full p-3 bg-gray-50 rounded-lg outline-none font-bold text-xs border"></select>
-                            <input type="number" id="in-registros" placeholder="TOTAL REGISTROS" class="p-3 bg-gray-50 rounded-lg outline-none border text-xs">
-                            <div class="grid grid-cols-4 gap-2 col-span-2">
-                                <input type="number" id="in-sms" placeholder="SMS" class="p-3 bg-gray-100 rounded-lg outline-none text-xs">
-                                <input type="number" id="in-email" placeholder="EMAIL" class="p-3 bg-gray-100 rounded-lg outline-none text-xs">
-                                <input type="number" id="in-wpp" placeholder="WPP" class="p-3 bg-gray-100 rounded-lg outline-none text-xs">
-                                <input type="number" id="in-cartas" placeholder="CARTAS" class="p-3 bg-gray-100 rounded-lg outline-none text-xs">
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-gray-400 ml-1">NOME DA EMPRESA</label>
+                                <input type="text" id="in-empresa" placeholder="EX: EMPRESA X" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border focus:border-camec-gold">
                             </div>
+                            <div class="flex flex-col gap-1">
+                                <label class="text-[9px] font-bold text-gray-400 ml-1">MÊS DE REFERÊNCIA</label>
+                                <select id="in-mes" class="w-full p-3 bg-gray-50 rounded-lg outline-none font-bold text-xs border"></select>
+                            </div>
+                            
+                            <div class="col-span-2 grid grid-cols-5 gap-2 bg-gray-50 p-4 rounded-xl">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[9px] font-bold text-gray-400">REGISTROS</label>
+                                    <input type="number" id="in-registros" class="p-3 bg-white border rounded-lg outline-none text-xs">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[9px] font-bold text-gray-400">SMS</label>
+                                    <input type="number" id="in-sms" class="p-3 bg-white border rounded-lg outline-none text-xs">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[9px] font-bold text-gray-400">EMAIL</label>
+                                    <input type="number" id="in-email" class="p-3 bg-white border rounded-lg outline-none text-xs">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[9px] font-bold text-gray-400">WPP</label>
+                                    <input type="number" id="in-wpp" class="p-3 bg-white border rounded-lg outline-none text-xs text-green-600 font-bold">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[9px] font-bold text-gray-400">CARTAS</label>
+                                    <input type="number" id="in-cartas" class="p-3 bg-white border rounded-lg outline-none text-xs">
+                                </div>
+                            </div>
+
                             <div class="col-span-2 flex gap-2">
                                 <button onclick="salvar()" id="btn-salvar" class="flex-1 bg-camec-gold text-white py-4 rounded-xl font-bold uppercase hover:opacity-90">Gravar Dados</button>
                                 <button onclick="cancelarEdicao()" id="btn-cancel" class="hidden bg-gray-200 text-gray-500 px-6 py-4 rounded-xl font-bold uppercase">Cancelar</button>
@@ -183,7 +205,6 @@
     let masterData = [];
     let myChart = null;
 
-    // Normalização: Valor no código (ID) vs Nome na tela
     const PERIODOS = ["NOVEMBRO_2025", "DEZEMBRO_2025", "JANEIRO_2026", "FEVEREIRO_2026", "MARCO_2026", "ABRIL_2026"];
 
     window.switchView = (v) => {
@@ -200,7 +221,6 @@
         } else { Swal.fire('Erro', 'Senha inválida', 'error'); }
     };
 
-    // Helper para exibir o mês corretamente
     const formatarMesDisplay = (stringMes) => {
         return stringMes.replace('_', ' ').replace('MARCO', 'MARÇO');
     };
@@ -289,24 +309,44 @@
         });
     };
 
+    // FUNÇÃO CORRIGIDA PARA MÚLTIPLOS VALORES
     window.salvar = async () => {
         const idEdit = document.getElementById('edit-id').value;
         const nome = document.getElementById('in-empresa').value.trim().toUpperCase();
         const mes = document.getElementById('in-mes').value;
-        if(!nome) return;
+
+        if(!nome) {
+            Swal.fire('Aviso', 'O nome da empresa é obrigatório.', 'warning');
+            return;
+        }
 
         const docId = idEdit || `${mes}_${nome}`;
+        
+        // Criamos o objeto base
         const data = {
-            id: docId, nome, mes,
-            registros: parseInt(document.getElementById('in-registros').value) || 0,
-            sms: parseInt(document.getElementById('in-sms').value) || 0,
-            email: parseInt(document.getElementById('in-email').value) || 0,
-            whatsapp: parseInt(document.getElementById('in-wpp').value) || 0,
-            cartas: parseInt(document.getElementById('in-cartas').value) || 0
+            id: docId,
+            nome: nome,
+            mes: mes
         };
 
+        // Mapeamos os inputs e só adicionamos ao dado se houver valor
+        const campos = [
+            { id: 'in-registros', key: 'registros' },
+            { id: 'in-sms', key: 'sms' },
+            { id: 'in-email', key: 'email' },
+            { id: 'in-wpp', key: 'whatsapp' },
+            { id: 'in-cartas', key: 'cartas' }
+        ];
+
+        campos.forEach(campo => {
+            const val = document.getElementById(campo.id).value;
+            if(val !== "") {
+                data[campo.key] = parseInt(val);
+            }
+        });
+
         await setDoc(doc(db, "producao_mensal", docId), data, { merge: true });
-        Swal.fire('Sucesso', 'Base atualizada!', 'success');
+        Swal.fire({ title: 'Sucesso', text: 'Dados CAMEC salvos!', icon: 'success', timer: 1500, showConfirmButton: false });
         cancelarEdicao();
     };
 
@@ -315,14 +355,14 @@
         document.getElementById('edit-id').value = obj.id;
         document.getElementById('in-empresa').value = obj.nome;
         document.getElementById('in-mes').value = obj.mes;
-        document.getElementById('in-registros').value = obj.registros;
-        document.getElementById('in-sms').value = obj.sms;
-        document.getElementById('in-email').value = obj.email;
-        document.getElementById('in-wpp').value = obj.whatsapp;
-        document.getElementById('in-cartas').value = obj.cartas;
+        document.getElementById('in-registros').value = obj.registros || "";
+        document.getElementById('in-sms').value = obj.sms || "";
+        document.getElementById('in-email').value = obj.email || "";
+        document.getElementById('in-wpp').value = obj.whatsapp || "";
+        document.getElementById('in-cartas').value = obj.cartas || "";
         
-        document.getElementById('form-title').innerText = "✏️ Editando Registro";
-        document.getElementById('btn-salvar').innerText = "Atualizar Agora";
+        document.getElementById('form-title').innerText = "✏️ Editando CAMEC";
+        document.getElementById('btn-salvar').innerText = "Atualizar";
         document.getElementById('btn-cancel').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -330,13 +370,13 @@
     window.cancelarEdicao = () => {
         document.getElementById('edit-id').value = "";
         document.querySelectorAll('#admin-panel input').forEach(i => i.value = "");
-        document.getElementById('form-title').innerText = "Novo Lançamento";
+        document.getElementById('form-title').innerText = "Lançamento de Dados";
         document.getElementById('btn-salvar').innerText = "Gravar Dados";
         document.getElementById('btn-cancel').classList.add('hidden');
     };
 
     window.excluir = async (id) => {
-        const confirm = await Swal.fire({ title: 'Remover?', icon: 'warning', showCancelButton: true });
+        const confirm = await Swal.fire({ title: 'Remover registro?', icon: 'warning', showCancelButton: true });
         if(confirm.isConfirmed) await deleteDoc(doc(db, "producao_mensal", id));
     };
 
@@ -383,7 +423,6 @@
         const sF = document.getElementById('filtro-mes');
         const sI = document.getElementById('in-mes');
         
-        // Mapeamento de opções com exibição correta de "Março"
         const opts = PERIODOS.map(p => {
             return `<option value="${p}">${formatarMesDisplay(p)}</option>`;
         }).join('');
