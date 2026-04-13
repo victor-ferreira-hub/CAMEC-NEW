@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAMEC | Sistema Integrado</title>
+    <title>CAMEC | Sistema Integrado de Gestão</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <script>
@@ -30,13 +29,15 @@
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700;900&display=swap');
         body { font-family: 'Public Sans', sans-serif; background-color: #f8f9fa; }
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-btn.active { background-color: #a16d2a; color: white !important; }
+        .nav-btn.active { background-color: #a16d2a; color: white !important; box-shadow: 0 4px 12px rgba(161, 109, 42, 0.3); }
         .company-item.active { background-color: rgba(161, 109, 42, 0.1); border-left: 4px solid #a16d2a; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
 <body class="text-slate-700">
@@ -44,19 +45,19 @@
 <div class="min-h-screen flex">
     <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shrink-0">
         <div class="p-8">
-            <div class="mb-10">
+            <div class="mb-10 flex justify-center">
                 <img src="Logo-1.png" alt="CAMEC Logo" class="w-full h-auto max-h-16 object-contain">
             </div>
             
-            <nav class="space-y-1">
-                <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
-                    <i class="fas fa-chart-line"></i> Dashboard
+            <nav class="space-y-2">
+                <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all rounded-xl">
+                    <i class="fas fa-chart-pie"></i> Dashboard
                 </button>
-                <button onclick="switchView('arquivos')" id="btn-arquivos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
-                    <i class="fas fa-file-invoice"></i> Controle de Arquivos
+                <button onclick="switchView('arquivos')" id="btn-arquivos" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all rounded-xl">
+                    <i class="fas fa-folder-open"></i> Arquivos
                 </button>
-                <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
-                    <i class="fas fa-cog"></i> Administração
+                <button onclick="switchView('admin')" id="btn-admin" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all rounded-xl">
+                    <i class="fas fa-user-shield"></i> Painel ADM
                 </button>
             </nav>
         </div>
@@ -65,114 +66,109 @@
     <main class="flex-1 flex flex-col max-h-screen overflow-hidden">
         <header class="h-20 bg-white border-b flex items-center justify-between px-10">
             <div>
-                <h2 id="page-title" class="text-xl font-bold text-camec-brown">Dashboard de Produção</h2>
-                <div class="flex items-center gap-2 text-xs font-bold text-camec-gold">
-                    <i class="fas fa-calendar-day"></i> <span id="header-mes-atual">AGUARDANDO...</span>
+                <h2 id="page-title" class="text-xl font-black text-camec-brown uppercase tracking-tight">Dashboard de Produção</h2>
+                <div class="flex items-center gap-2 text-[10px] font-bold text-camec-gold uppercase">
+                    <i class="fas fa-calendar-alt"></i> <span id="header-mes-atual">Carregando...</span>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" id="search-input" onkeyup="renderizarTudo()" placeholder="Filtrar por nome..." class="pl-9 pr-4 py-2 text-xs border border-gray-100 rounded-lg outline-none focus:ring-1 ring-camec-gold w-64">
+                    <input type="text" id="search-input" onkeyup="renderizarTudo()" placeholder="Buscar cliente..." class="pl-9 pr-4 py-2 text-xs border border-gray-100 rounded-xl outline-none focus:ring-2 ring-camec-gold/20 w-64 bg-gray-50">
                 </div>
-                <select id="filtro-mes" onchange="renderizarTudo()" class="text-xs font-bold px-4 py-2 bg-gray-50 border rounded-lg outline-none"></select>
-                <div class="flex bg-camec-brown rounded-lg overflow-hidden shadow-sm">
-                    <button onclick="exportToPDF()" class="px-4 py-2 text-white text-[10px] font-bold border-r border-white/10 hover:bg-black/20"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button onclick="exportToExcel()" class="px-4 py-2 text-white text-[10px] font-bold hover:bg-black/20"><i class="fas fa-file-excel"></i> EXCEL</button>
-                </div>
+                <select id="filtro-mes" onchange="renderizarTudo()" class="text-xs font-bold px-4 py-2 bg-white border border-gray-100 rounded-xl outline-none shadow-sm cursor-pointer"></select>
             </div>
         </header>
 
-        <div class="p-10 overflow-y-auto">
+        <div class="p-10 overflow-y-auto bg-[#fbfcfd]">
             
             <section id="view-dashboard" class="view-section active">
-                <div class="grid grid-cols-5 gap-4 mb-8">
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">Registros</span>
-                        <h3 class="text-2xl font-black text-camec-brown" id="total-registros">0</h3>
+                <div class="grid grid-cols-4 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group">
+                        <div class="absolute right-0 bottom-0 p-4 opacity-5 transform group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-alt text-6xl"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Registros Totais</span>
+                        <h3 class="text-3xl font-black text-camec-brown mt-1" id="total-registros">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">SMS</span>
-                        <h3 class="text-2xl font-black text-camec-brown" id="total-sms">0</h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Fluxo E-mail</span>
+                        <h3 class="text-3xl font-black text-camec-brown mt-1" id="total-email">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">E-mails</span>
-                        <h3 class="text-2xl font-black text-camec-brown" id="total-email">0</h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="text-[10px] font-bold text-green-600/50 uppercase tracking-widest">WhatsApp</span>
+                        <h3 class="text-3xl font-black text-green-600 mt-1" id="total-whatsapp">0</h3>
                     </div>
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase text-green-600">WhatsApp</span>
-                        <h3 class="text-2xl font-black text-green-600" id="total-whatsapp">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase text-amber-600">Cartas</span>
-                        <h3 class="text-2xl font-black text-amber-600" id="total-cartas">0</h3>
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                        <span class="text-[10px] font-bold text-amber-600/50 uppercase tracking-widest">Cartas/SMS</span>
+                        <h3 class="text-3xl font-black text-amber-600 mt-1" id="total-sms">0</h3>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+                    <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-white">
+                        <h3 class="text-xs font-black uppercase text-gray-400 tracking-tighter">Performance por Cliente</h3>
+                        <button onclick="exportToExcel()" class="text-[10px] font-bold bg-camec-gold text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all">
+                            <i class="fas fa-download mr-2"></i> Exportar Relatório
+                        </button>
+                    </div>
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 border-b border-gray-100">
+                        <thead class="bg-gray-50/50 border-b border-gray-100">
                             <tr>
-                                <th class="px-8 py-4 text-[10px] font-bold uppercase text-gray-400">Empresa</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Registros</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">SMS</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">WhatsApp</th>
-                                <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">E-mail</th>
-                                <th class="px-8 py-4 text-right text-[10px] font-bold uppercase text-gray-400">Ação</th>
+                                <th class="px-8 py-5 text-[10px] font-bold uppercase text-gray-400">Empresa</th>
+                                <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">Registros</th>
+                                <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">SMS</th>
+                                <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">WhatsApp</th>
+                                <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">E-mail</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-corpo" class="text-[12px] divide-y divide-gray-50"></tbody>
+                        <tbody id="tabela-corpo" class="text-[13px] divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </section>
 
             <section id="view-arquivos" class="view-section">
-                <div class="grid grid-cols-12 gap-6 items-start">
-                    
-                    <div class="col-span-12 md:col-span-4 lg:col-span-3 space-y-4">
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Filtro por Cliente</h4>
+                <div class="grid grid-cols-12 gap-8 items-start">
+                    <div class="col-span-3 space-y-4">
+                        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div class="p-5 border-b border-gray-50 bg-gray-50/30">
+                                <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Carteira de Clientes</h4>
                             </div>
-                            <div id="lista-empresas-arquivos" class="max-h-[600px] overflow-y-auto">
-                                <div class="p-8 text-center text-gray-400 text-xs italic">Carregando empresas...</div>
-                            </div>
+                            <div id="lista-empresas-arquivos" class="max-h-[500px] overflow-y-auto"></div>
                         </div>
                     </div>
 
-                    <div class="col-span-12 md:col-span-8 lg:col-span-9 space-y-6">
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase">Documentos Totais</span>
-                                <h3 class="text-2xl font-black text-camec-brown" id="company-file-count">0</h3>
-                            </div>
-                            <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase text-amber-600">A vencer (5d)</span>
-                                <h3 class="text-2xl font-black text-amber-600" id="company-file-warning">0</h3>
-                            </div>
-                            <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase text-red-600">Vencidos</span>
-                                <h3 class="text-2xl font-black text-red-600" id="company-file-danger">0</h3>
+                    <div class="col-span-9 space-y-6">
+                        <div id="file-detail-header" class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] font-bold text-camec-gold uppercase tracking-widest">Custódia de Documentos</span>
+                                    <h2 id="nome-empresa-selecionada" class="text-2xl font-black text-camec-brown uppercase tracking-tight">Selecione uma empresa</h2>
+                                </div>
+                                <div class="flex gap-4">
+                                    <div class="text-right">
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase">Total Arquivos</p>
+                                        <p class="text-xl font-black text-camec-brown" id="company-file-count">0</p>
+                                    </div>
+                                    <div class="text-right border-l pl-4">
+                                        <p class="text-[9px] font-bold text-red-400 uppercase">Vencidos</p>
+                                        <p class="text-xl font-black text-red-600" id="company-file-danger">0</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                            <div class="p-6 border-b border-gray-50 bg-white">
-                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Arquivos da Empresa:</h4>
-                                <h2 id="nome-empresa-selecionada" class="text-sm font-black text-camec-gold uppercase">Selecione uma empresa à esquerda</h2>
-                            </div>
+                        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
                             <table class="w-full text-left">
-                                <thead class="bg-gray-50 border-b border-gray-100">
+                                <thead class="bg-gray-50/50 border-b border-gray-100">
                                     <tr>
-                                        <th class="px-8 py-4 text-[10px] font-bold uppercase text-gray-400">Arquivo</th>
-                                        <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Vol.</th>
-                                        <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Vencimento</th>
-                                        <th class="px-8 py-4 text-right text-[10px] font-bold uppercase text-gray-400">Status</th>
+                                        <th class="px-8 py-5 text-[10px] font-bold uppercase text-gray-400">Nome do Arquivo</th>
+                                        <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">Volume</th>
+                                        <th class="px-6 py-5 text-center text-[10px] font-bold uppercase text-gray-400">Vencimento</th>
+                                        <th class="px-8 py-5 text-right text-[10px] font-bold uppercase text-gray-400">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabela-arquivos-filtrada" class="text-[12px] divide-y divide-gray-50">
-                                    <tr><td colspan="4" class="px-8 py-20 text-center text-gray-400 italic">Clique em uma empresa para visualizar.</td></tr>
-                                </tbody>
+                                <tbody id="tabela-arquivos-filtrada" class="text-[13px] divide-y divide-gray-50"></tbody>
                             </table>
                         </div>
                     </div>
@@ -180,44 +176,75 @@
             </section>
 
             <section id="view-admin" class="view-section">
-                <div id="auth-box" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
-                    <h3 class="font-bold mb-4">Acesso Administrativo</h3>
-                    <input type="password" id="admin-pass" class="w-full p-3 bg-gray-50 rounded-lg mb-4 text-center outline-none focus:ring-1 ring-camec-gold" placeholder="••••••••">
-                    <button onclick="checkAuth()" class="w-full bg-camec-brown text-white py-3 rounded-lg font-bold">Entrar</button>
+                <div id="auth-box" class="max-w-md mx-auto mt-20 bg-white p-10 rounded-3xl shadow-2xl border border-gray-100 text-center">
+                    <div class="w-16 h-16 bg-camec-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-lock text-camec-gold"></i>
+                    </div>
+                    <h3 class="font-black text-camec-brown uppercase mb-2">Área Restrita</h3>
+                    <p class="text-xs text-gray-400 mb-8">Insira sua credencial para gerenciar o sistema</p>
+                    <input type="password" id="admin-pass" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 text-center outline-none focus:ring-2 ring-camec-gold/30 border-transparent transition-all" placeholder="••••••••">
+                    <button onclick="checkAuth()" class="w-full bg-camec-brown text-white py-4 rounded-2xl font-bold hover:bg-black transition-all shadow-lg shadow-black/10">Acessar Painel</button>
                 </div>
 
-                <div id="admin-panel" class="hidden max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h2 class="text-xs font-bold uppercase mb-6 text-camec-gold border-b pb-2">Lançamento de Produção</h2>
-                        <div class="space-y-4">
-                            <input type="text" id="in-empresa" placeholder="NOME DA EMPRESA" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
-                            <select id="in-mes" class="w-full p-3 bg-gray-50 rounded-lg outline-none font-bold text-xs border"></select>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input type="number" id="in-registros" placeholder="Registros" class="p-3 bg-gray-50 border rounded-lg text-xs">
-                                <input type="number" id="in-sms" placeholder="SMS" class="p-3 bg-gray-50 border rounded-lg text-xs">
-                                <input type="number" id="in-email" placeholder="Email" class="p-3 bg-gray-50 border rounded-lg text-xs">
-                                <input type="number" id="in-wpp" placeholder="WhatsApp" class="p-3 bg-gray-50 border rounded-lg text-xs">
+                <div id="admin-panel" class="hidden max-w-5xl mx-auto">
+                    <div class="mb-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl border-t-4 border-t-camec-gold">
+                            <div class="flex items-center gap-3 mb-8">
+                                <div class="w-10 h-10 bg-camec-gold text-white rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-sm font-black text-camec-brown uppercase tracking-tight">Novo Registro de Arquivo</h2>
+                                    <p class="text-[10px] text-gray-400 uppercase font-bold">Produção automática vinculada</p>
+                                </div>
                             </div>
-                            <button onclick="salvarProducao()" class="w-full bg-camec-gold text-white py-3 rounded-xl font-bold uppercase">Gravar Produção</button>
-                        </div>
-                    </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h2 class="text-xs font-bold uppercase mb-6 text-camec-gold border-b pb-2">Novo Arquivo / Registro</h2>
-                        <div class="space-y-4">
-                            <input type="text" id="file-in-nome" placeholder="NOME DO ARQUIVO" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
-                            <input type="text" id="file-in-empresa" placeholder="CLIENTE / EMPRESA" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
-                            <div class="grid grid-cols-2 gap-2">
-                                <input type="number" id="file-in-volume" placeholder="Volume" class="p-3 bg-gray-50 border rounded-lg text-xs">
-                                <input type="date" id="file-in-data" class="p-3 bg-gray-50 border rounded-lg text-xs">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Dados Básicos</label>
+                                    <div class="grid grid-cols-2 gap-3 mt-1">
+                                        <input type="text" id="file-in-empresa" placeholder="NOME DO CLIENTE" class="p-4 bg-gray-50 rounded-2xl outline-none uppercase font-bold text-xs border border-transparent focus:bg-white focus:border-camec-gold/20 transition-all">
+                                        <input type="text" id="file-in-nome" placeholder="ID DO ARQUIVO" class="p-4 bg-gray-50 rounded-2xl outline-none uppercase font-bold text-xs border border-transparent focus:bg-white focus:border-camec-gold/20 transition-all">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Data do Recebimento</label>
+                                        <input type="date" id="file-in-data" class="w-full p-4 bg-gray-50 rounded-2xl border-transparent text-xs font-bold mt-1">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase ml-1">Volume (Registros)</label>
+                                        <input type="number" id="file-in-volume" placeholder="0" class="w-full p-4 bg-gray-50 rounded-2xl border-transparent text-xs font-bold mt-1">
+                                    </div>
+                                </div>
+
+                                <div class="p-6 bg-camec-gold/5 rounded-2xl border border-camec-gold/10">
+                                    <label class="text-[10px] font-black text-camec-gold uppercase mb-3 block">Metadados de Produção (Sync Automático)</label>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <div class="text-center">
+                                            <span class="text-[9px] font-bold text-gray-400 uppercase">SMS</span>
+                                            <input type="number" id="file-in-sms" value="0" class="w-full p-2 bg-white border rounded-lg text-center font-bold text-xs mt-1">
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-[9px] font-bold text-gray-400 uppercase">Wpp</span>
+                                            <input type="number" id="file-in-wpp" value="0" class="w-full p-2 bg-white border rounded-lg text-center font-bold text-xs mt-1">
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="text-[9px] font-bold text-gray-400 uppercase">Email</span>
+                                            <input type="number" id="file-in-email" value="0" class="w-full p-2 bg-white border rounded-lg text-center font-bold text-xs mt-1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button onclick="salvarArquivoCompleto()" class="w-full bg-camec-brown text-white py-5 rounded-2xl font-black uppercase text-xs hover:bg-camec-gold transition-all shadow-lg">Processar e Salvar Registro</button>
                             </div>
-                            <button onclick="salvarArquivo()" class="w-full bg-camec-brown text-white py-3 rounded-xl font-bold uppercase">Cadastrar Arquivo</button>
                         </div>
-                    </div>
 
-                    <div class="col-span-1 md:col-span-2 mt-4">
-                        <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-2">Ações Recentes</h3>
-                        <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto"></div>
+                        <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl">
+                            <h3 class="text-[10px] font-black text-gray-400 uppercase mb-6 tracking-widest">Logs de Operação Recentes</h3>
+                            <div id="admin-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-2"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -227,7 +254,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, getDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDyO3dZbTLg-BabfpDze2a2U9AGUMAB5_o", 
@@ -245,7 +272,13 @@
     let masterFiles = [];
     let empresaSelecionada = null;
 
-    const PERIODOS = ["NOVEMBRO_2025", "DEZEMBRO_2025", "JANEIRO_2026", "FEVEREIRO_2026", "MARCO_2026", "ABRIL_2026"];
+    // MESES ATUALIZADOS CONFORME SOLICITADO
+    const PERIODOS = [
+        "JANEIRO_2026", "FEVEREIRO_2026", "MARCO_2026", "ABRIL_2026", 
+        "MAIO_2026", "JUNHO_2026", "JULHO_2026"
+    ];
+
+    const formatarMes = (m) => m.replace('_', ' ').replace('MARCO', 'MARÇO');
 
     // NAVEGAÇÃO
     window.switchView = (v) => {
@@ -253,8 +286,7 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`view-${v}`).classList.add('active');
         document.getElementById(`btn-${v}`).classList.add('active');
-        
-        const titulos = { 'dashboard': 'Dashboard de Produção', 'arquivos': 'Controle de Arquivos', 'admin': 'Administração' };
+        const titulos = { 'dashboard': 'Dashboard de Produção', 'arquivos': 'Controle de Arquivos', 'admin': 'Painel Administrativo' };
         document.getElementById('page-title').innerText = titulos[v];
     };
 
@@ -262,169 +294,168 @@
         if(document.getElementById('admin-pass').value === 'wuwg62Adm1n;') {
             document.getElementById('auth-box').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
-        } else { Swal.fire('Erro', 'Senha incorreta.', 'error'); }
+        } else { Swal.fire('Erro', 'Acesso negado.', 'error'); }
     };
 
-    const formatarMes = (m) => m.replace('_', ' ').replace('MARCO', 'MARÇO');
+    // LOGICA DE SYNC AUTOMÁTICO (ARQUIVO -> PRODUÇÃO)
+    window.salvarArquivoCompleto = async () => {
+        const empresa = document.getElementById('file-in-empresa').value.trim().toUpperCase();
+        const nomeArquivo = document.getElementById('file-in-nome').value.trim().toUpperCase();
+        const dataOriginal = document.getElementById('file-in-data').value;
+        const volume = parseInt(document.getElementById('file-in-volume').value) || 0;
+        const sms = parseInt(document.getElementById('file-in-sms').value) || 0;
+        const wpp = parseInt(document.getElementById('file-in-wpp').value) || 0;
+        const email = parseInt(document.getElementById('file-in-email').value) || 0;
 
+        if(!empresa || !dataOriginal || !nomeArquivo) {
+            return Swal.fire('Atenção', 'Preencha Empresa, Nome e Data.', 'warning');
+        }
+
+        // 1. Determinar o mês baseado na data informada
+        const dataObjeto = new Date(dataOriginal + "T00:00:00");
+        const mesIndex = dataObjeto.getMonth();
+        const ano = dataObjeto.getFullYear();
+        const mesesNomes = ["JANEIRO", "FEVEREIRO", "MARCO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+        const mesAnoRef = `${mesesNomes[mesIndex]}_${ano}`;
+
+        try {
+            Swal.showLoading();
+            
+            // 2. Salvar na coleção de ARQUIVOS
+            const fileId = `FILE_${Date.now()}`;
+            await setDoc(doc(db, "controle_arquivos", fileId), {
+                id: fileId, nome: nomeArquivo, empresa, volume, data: dataOriginal
+            });
+
+            // 3. Atualizar/Criar na coleção de PRODUÇÃO (Sync Automático)
+            const prodId = `${mesAnoRef}_${empresa}`;
+            const prodRef = doc(db, "producao_mensal", prodId);
+            const prodDoc = await getDoc(prodRef);
+
+            if(prodDoc.exists()) {
+                // Soma aos valores existentes
+                await updateDoc(prodRef, {
+                    registros: increment(volume),
+                    sms: increment(sms),
+                    whatsapp: increment(wpp),
+                    email: increment(email)
+                });
+            } else {
+                // Cria novo registro de produção para o mês
+                await setDoc(prodRef, {
+                    id: prodId, nome: empresa, mes: mesAnoRef,
+                    registros: volume, sms: sms, whatsapp: wpp, email: email
+                });
+            }
+
+            Swal.fire('Sucesso', 'Arquivo registrado e Produção atualizada automaticamente!', 'success');
+            
+            // Limpar Campos
+            document.getElementById('file-in-nome').value = '';
+            document.getElementById('file-in-volume').value = '';
+            document.getElementById('file-in-sms').value = '0';
+            document.getElementById('file-in-wpp').value = '0';
+            document.getElementById('file-in-email').value = '0';
+
+        } catch (e) {
+            Swal.fire('Erro', 'Falha ao salvar dados: ' + e.message, 'error');
+        }
+    };
+
+    // RENDERIZAÇÃO
     window.renderizarTudo = () => {
-        renderizarDashboard();
-        renderizarListaEmpresas();
-        if(empresaSelecionada) renderizarDetalhesArquivos();
-    };
-
-    // DASHBOARD
-    const renderizarDashboard = () => {
         const mesRef = document.getElementById('filtro-mes').value;
         const query = document.getElementById('search-input').value.toUpperCase();
         document.getElementById('header-mes-atual').innerText = formatarMes(mesRef);
+
+        // Dashboard
+        const filtradosProd = masterData.filter(d => d.mes === mesRef && d.nome.includes(query));
+        const t = { reg: 0, sms: 0, email: 0, wpp: 0 };
         
-        const filtrados = masterData.filter(d => d.mes === mesRef && d.nome.includes(query));
-        
-        const t = {
-            reg: filtrados.reduce((s,e) => s+(e.registros||0),0),
-            sms: filtrados.reduce((s,e) => s+(e.sms||0),0),
-            email: filtrados.reduce((s,e) => s+(e.email||0),0),
-            wpp: filtrados.reduce((s,e) => s+(e.whatsapp||0),0),
-            cart: filtrados.reduce((s,e) => s+(e.cartas||0),0)
-        };
-
-        document.getElementById('total-registros').innerText = t.reg.toLocaleString();
-        document.getElementById('total-sms').innerText = t.sms.toLocaleString();
-        document.getElementById('total-email').innerText = t.email.toLocaleString();
-        document.getElementById('total-whatsapp').innerText = t.wpp.toLocaleString();
-        document.getElementById('total-cartas').innerText = t.cart.toLocaleString();
-
-        document.getElementById('tabela-corpo').innerHTML = filtrados.map(e => `
-            <tr class="hover:bg-gray-50/50">
-                <td class="px-8 py-4 font-bold text-slate-700">${e.nome}</td>
-                <td class="px-6 py-4 text-center font-bold text-camec-gold">${(e.registros||0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-slate-500">${(e.sms||0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-green-600 font-medium">${(e.whatsapp||0).toLocaleString()}</td>
-                <td class="px-6 py-4 text-center text-slate-500">${(e.email||0).toLocaleString()}</td>
-                <td class="px-8 py-4 text-right"><i class="fas fa-check-circle text-gray-200"></i></td>
-            </tr>`).join('');
-            
-        atualizarAdminList();
-    };
-
-    // CONTROLE DE ARQUIVOS (MASTER-DETAIL)
-    const renderizarListaEmpresas = () => {
-        const container = document.getElementById('lista-empresas-arquivos');
-        const empresas = [...new Set(masterFiles.map(f => f.empresa.toUpperCase()))].sort();
-
-        if (empresas.length === 0) {
-            container.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs italic">Nenhum registro.</div>';
-            return;
-        }
-
-        container.innerHTML = empresas.map(emp => {
-            const isActive = empresaSelecionada === emp;
-            const count = masterFiles.filter(f => f.empresa.toUpperCase() === emp).length;
+        document.getElementById('tabela-corpo').innerHTML = filtradosProd.map(e => {
+            t.reg += (e.registros||0); t.sms += (e.sms||0); t.email += (e.email||0); t.wpp += (e.whatsapp||0);
             return `
-                <button onclick="selecionarEmpresaArquivos('${emp}')" 
-                    class="company-item w-full text-left px-6 py-4 border-b border-gray-50 transition-all hover:bg-gray-50 flex justify-between items-center ${isActive ? 'active' : ''}">
-                    <span class="text-xs font-bold ${isActive ? 'text-camec-gold' : 'text-slate-600'}">${emp}</span>
-                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full text-gray-500 font-bold">${count}</span>
-                </button>`;
-        }).join('');
-    };
-
-    window.selecionarEmpresaArquivos = (nome) => {
-        empresaSelecionada = nome;
-        renderizarListaEmpresas();
-        renderizarDetalhesArquivos();
-    };
-
-    const renderizarDetalhesArquivos = () => {
-        const tabela = document.getElementById('tabela-arquivos-filtrada');
-        const titulo = document.getElementById('nome-empresa-selecionada');
-        titulo.innerText = empresaSelecionada;
-
-        const filtrados = masterFiles.filter(f => f.empresa.toUpperCase() === empresaSelecionada);
-        let vencidos = 0; let vencendo = 0;
-        const hoje = new Date();
-
-        tabela.innerHTML = filtrados.map(f => {
-            const dataVenc = new Date(f.data);
-            dataVenc.setDate(dataVenc.getDate() + 30);
-            const diasRestantes = Math.ceil((dataVenc - hoje) / (1000 * 60 * 60 * 24));
-            
-            let status = { text: "ATIVO", class: "bg-green-100 text-green-700" };
-            if(diasRestantes < 0) { status = { text: "VENCIDO", class: "bg-red-100 text-red-700" }; vencidos++; }
-            else if(diasRestantes <= 5) { status = { text: "URGENTE", class: "bg-amber-100 text-amber-700" }; vencendo++; }
-
-            return `
-                <tr class="hover:bg-gray-50/50">
-                    <td class="px-8 py-4 font-bold text-xs uppercase text-slate-700">${f.nome}</td>
-                    <td class="px-6 py-4 text-center font-bold text-slate-500">${f.volume}</td>
-                    <td class="px-6 py-4 text-center text-slate-400">${dataVenc.toLocaleDateString()}</td>
-                    <td class="px-8 py-4 text-right"><span class="px-3 py-1 rounded-full text-[9px] font-black ${status.class}">${status.text} (${diasRestantes}d)</span></td>
+                <tr class="hover:bg-gray-50/50 transition-colors">
+                    <td class="px-8 py-5 font-black text-slate-700">${e.nome}</td>
+                    <td class="px-6 py-5 text-center font-black text-camec-gold bg-camec-gold/5">${(e.registros||0).toLocaleString()}</td>
+                    <td class="px-6 py-5 text-center text-slate-500 font-bold">${(e.sms||0).toLocaleString()}</td>
+                    <td class="px-6 py-5 text-center text-green-600 font-black">${(e.whatsapp||0).toLocaleString()}</td>
+                    <td class="px-6 py-5 text-center text-slate-500 font-bold">${(e.email||0).toLocaleString()}</td>
                 </tr>`;
         }).join('');
 
+        document.getElementById('total-registros').innerText = t.reg.toLocaleString();
+        document.getElementById('total-email').innerText = t.email.toLocaleString();
+        document.getElementById('total-whatsapp').innerText = t.wpp.toLocaleString();
+        document.getElementById('total-sms').innerText = t.sms.toLocaleString();
+
+        // Lista Empresas Arquivos
+        const empresasArr = [...new Set(masterFiles.map(f => f.empresa.toUpperCase()))].sort();
+        document.getElementById('lista-empresas-arquivos').innerHTML = empresasArr.map(emp => {
+            const isActive = empresaSelecionada === emp;
+            return `
+                <button onclick="selecionarEmpresa('${emp}')" class="w-full text-left px-6 py-4 border-b border-gray-50 flex justify-between items-center transition-all hover:bg-gray-50 ${isActive ? 'active bg-camec-gold/5' : ''}">
+                    <span class="text-[11px] font-black uppercase ${isActive ? 'text-camec-gold' : 'text-slate-600'}">${emp}</span>
+                    <i class="fas fa-chevron-right text-[10px] text-gray-300"></i>
+                </button>`;
+        }).join('');
+
+        if(empresaSelecionada) renderizarArquivosDetalhe();
+        renderAdminList();
+    };
+
+    window.selecionarEmpresa = (nome) => {
+        empresaSelecionada = nome;
+        renderizarTudo();
+    };
+
+    const renderizarArquivosDetalhe = () => {
+        const filtrados = masterFiles.filter(f => f.empresa.toUpperCase() === empresaSelecionada);
+        let perigos = 0; const hoje = new Date();
+        
+        document.getElementById('nome-empresa-selecionada').innerText = empresaSelecionada;
+        document.getElementById('tabela-arquivos-filtrada').innerHTML = filtrados.map(f => {
+            const vcto = new Date(f.data); vcto.setDate(vcto.getDate() + 30);
+            const dias = Math.ceil((vcto - hoje) / (1000*60*60*24));
+            let status = { t: 'OK', c: 'bg-green-100 text-green-700' };
+            if(dias < 0) { status = { t: 'EXPIRADO', c: 'bg-red-100 text-red-700' }; perigos++; }
+            else if(dias <= 5) { status = { t: 'ALERTA', c: 'bg-amber-100 text-amber-700' }; }
+
+            return `
+                <tr class="hover:bg-gray-50/50">
+                    <td class="px-8 py-4 font-black text-xs uppercase text-slate-600">${f.nome}</td>
+                    <td class="px-6 py-4 text-center font-bold text-slate-400">${f.volume}</td>
+                    <td class="px-6 py-4 text-center font-bold text-slate-400">${vcto.toLocaleDateString()}</td>
+                    <td class="px-8 py-4 text-right"><span class="px-3 py-1 rounded-lg text-[9px] font-black ${status.c}">${status.t} (${dias}d)</span></td>
+                </tr>`;
+        }).join('');
         document.getElementById('company-file-count').innerText = filtrados.length;
-        document.getElementById('company-file-warning').innerText = vencendo;
-        document.getElementById('company-file-danger').innerText = vencidos;
+        document.getElementById('company-file-danger').innerText = perigos;
     };
 
-    // SALVAMENTO
-    window.salvarProducao = async () => {
-        const nome = document.getElementById('in-empresa').value.trim().toUpperCase();
-        const mes = document.getElementById('in-mes').value;
-        if(!nome) return;
-
-        const data = {
-            id: `${mes}_${nome}`, nome, mes,
-            registros: parseInt(document.getElementById('in-registros').value) || 0,
-            sms: parseInt(document.getElementById('in-sms').value) || 0,
-            email: parseInt(document.getElementById('in-email').value) || 0,
-            whatsapp: parseInt(document.getElementById('in-wpp').value) || 0
-        };
-        await setDoc(doc(db, "producao_mensal", data.id), data);
-        Swal.fire('CAMEC', 'Produção salva.', 'success');
-    };
-
-    window.salvarArquivo = async () => {
-        const nome = document.getElementById('file-in-nome').value.trim().toUpperCase();
-        const empresa = document.getElementById('file-in-empresa').value.trim().toUpperCase();
-        const dataEnvio = document.getElementById('file-in-data').value;
-        if(!nome || !empresa) return;
-
-        const id = `FILE_${Date.now()}`;
-        await setDoc(doc(db, "controle_arquivos", id), {
-            id, nome, empresa, 
-            volume: document.getElementById('file-in-volume').value || 0,
-            data: dataEnvio
-        });
-        Swal.fire('CAMEC', 'Arquivo registrado.', 'success');
-    };
-
-    window.excluirReg = async (col, id) => {
-        const res = await Swal.fire({ title: 'Excluir?', showCancelButton: true });
-        if(res.isConfirmed) await deleteDoc(doc(db, col, id));
-    };
-
-    const atualizarAdminList = () => {
-        const list = document.getElementById('admin-list');
-        const p = masterData.slice(-3).map(e => `
-            <div class="p-3 bg-white border rounded-xl flex justify-between items-center text-[10px]">
-                <span class="font-bold uppercase">${e.nome} (${formatarMes(e.mes)})</span>
-                <button onclick="excluirReg('producao_mensal', '${e.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>
+    const renderAdminList = () => {
+        const lastFiles = masterFiles.slice(-8).reverse();
+        document.getElementById('admin-list').innerHTML = lastFiles.map(f => `
+            <div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border border-transparent hover:border-gray-200 transition-all">
+                <div>
+                    <p class="text-[11px] font-black text-slate-700 uppercase">${f.empresa}</p>
+                    <p class="text-[9px] text-gray-400 font-bold uppercase">${f.nome} • Vol: ${f.volume}</p>
+                </div>
+                <button onclick="deletarArquivo('${f.id}')" class="w-8 h-8 rounded-full bg-white text-red-300 hover:text-red-500 flex items-center justify-center shadow-sm">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </button>
             </div>`).join('');
-        const f = masterFiles.slice(-3).map(f => `
-            <div class="p-3 bg-white border rounded-xl flex justify-between items-center text-[10px]">
-                <span class="font-bold uppercase">${f.nome} - ${f.empresa}</span>
-                <button onclick="excluirReg('controle_arquivos', '${f.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>
-            </div>`).join('');
-        list.innerHTML = p + f;
+    };
+
+    window.deletarArquivo = async (id) => {
+        const res = await Swal.fire({ title: 'Excluir?', text: 'Isso remove o arquivo do controle, mas mantém os números na produção.', icon: 'warning', showCancelButton: true });
+        if(res.isConfirmed) await deleteDoc(doc(db, "controle_arquivos", id));
     };
 
     // INIT
     const init = () => {
         const opts = PERIODOS.map(p => `<option value="${p}">${formatarMes(p)}</option>`).join('');
         document.getElementById('filtro-mes').innerHTML = opts;
-        document.getElementById('in-mes').innerHTML = opts;
         
         onSnapshot(collection(db, "producao_mensal"), (snap) => {
             masterData = snap.docs.map(d => d.data());
