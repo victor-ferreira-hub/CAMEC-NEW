@@ -44,7 +44,10 @@
 <div class="min-h-screen flex">
     <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shrink-0">
         <div class="p-8">
-            <h1 class="text-2xl font-black text-camec-gold tracking-tighter mb-10">CAMEC</h1>
+            <div class="mb-10">
+                <img src="Logo-1.png" alt="CAMEC Logo" class="w-full h-auto max-h-16 object-contain">
+            </div>
+            
             <nav class="space-y-1">
                 <button onclick="switchView('dashboard')" id="btn-dashboard" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-400 transition-all">
                     <i class="fas fa-chart-line"></i> Dashboard
@@ -84,7 +87,7 @@
             
             <section id="view-dashboard" class="view-section active">
                 <div class="grid grid-cols-5 gap-4 mb-8">
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
                         <span class="text-[9px] font-bold text-gray-400 uppercase">Registros</span>
                         <h3 class="text-2xl font-black text-camec-brown" id="total-registros">0</h3>
                     </div>
@@ -101,8 +104,8 @@
                         <h3 class="text-2xl font-black text-green-600" id="total-whatsapp">0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">Cartas</span>
-                        <h3 class="text-2xl font-black text-camec-brown" id="total-cartas">0</h3>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase text-amber-600">Cartas</span>
+                        <h3 class="text-2xl font-black text-amber-600" id="total-cartas">0</h3>
                     </div>
                 </div>
 
@@ -129,10 +132,10 @@
                     <div class="col-span-12 md:col-span-4 lg:col-span-3 space-y-4">
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                             <div class="p-4 border-b border-gray-50 bg-gray-50/50">
-                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Empresas Cadastradas</h4>
+                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Filtro por Cliente</h4>
                             </div>
                             <div id="lista-empresas-arquivos" class="max-h-[600px] overflow-y-auto">
-                                <div class="p-8 text-center text-gray-400 text-xs italic">Aguardando dados...</div>
+                                <div class="p-8 text-center text-gray-400 text-xs italic">Carregando empresas...</div>
                             </div>
                         </div>
                     </div>
@@ -140,11 +143,11 @@
                     <div class="col-span-12 md:col-span-8 lg:col-span-9 space-y-6">
                         <div class="grid grid-cols-3 gap-4">
                             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase">Arquivos Totais</span>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">Documentos Totais</span>
                                 <h3 class="text-2xl font-black text-camec-brown" id="company-file-count">0</h3>
                             </div>
                             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                                <span class="text-[9px] font-bold text-gray-400 uppercase text-amber-600">A vencer (5 dias)</span>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase text-amber-600">A vencer (5d)</span>
                                 <h3 class="text-2xl font-black text-amber-600" id="company-file-warning">0</h3>
                             </div>
                             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
@@ -155,20 +158,20 @@
 
                         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                             <div class="p-6 border-b border-gray-50 bg-white">
-                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Detalhamento para:</h4>
-                                <h2 id="nome-empresa-selecionada" class="text-sm font-black text-camec-gold uppercase">Nenhuma empresa selecionada</h2>
+                                <h4 class="text-[10px] font-bold uppercase text-gray-400">Arquivos da Empresa:</h4>
+                                <h2 id="nome-empresa-selecionada" class="text-sm font-black text-camec-gold uppercase">Selecione uma empresa à esquerda</h2>
                             </div>
                             <table class="w-full text-left">
                                 <thead class="bg-gray-50 border-b border-gray-100">
                                     <tr>
-                                        <th class="px-8 py-4 text-[10px] font-bold uppercase text-gray-400">Nome do Arquivo</th>
-                                        <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Volume</th>
+                                        <th class="px-8 py-4 text-[10px] font-bold uppercase text-gray-400">Arquivo</th>
+                                        <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Vol.</th>
                                         <th class="px-6 py-4 text-center text-[10px] font-bold uppercase text-gray-400">Vencimento</th>
                                         <th class="px-8 py-4 text-right text-[10px] font-bold uppercase text-gray-400">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabela-arquivos-filtrada" class="text-[12px] divide-y divide-gray-50">
-                                    <tr><td colspan="4" class="px-8 py-20 text-center text-gray-400">Selecione uma empresa ao lado.</td></tr>
+                                    <tr><td colspan="4" class="px-8 py-20 text-center text-gray-400 italic">Clique em uma empresa para visualizar.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -195,27 +198,26 @@
                                 <input type="number" id="in-email" placeholder="Email" class="p-3 bg-gray-50 border rounded-lg text-xs">
                                 <input type="number" id="in-wpp" placeholder="WhatsApp" class="p-3 bg-gray-50 border rounded-lg text-xs">
                             </div>
-                            <button onclick="salvarProducao()" class="w-full bg-camec-gold text-white py-3 rounded-xl font-bold uppercase">Gravar Dados de Produção</button>
+                            <button onclick="salvarProducao()" class="w-full bg-camec-gold text-white py-3 rounded-xl font-bold uppercase">Gravar Produção</button>
                         </div>
                     </div>
 
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                        <h2 class="text-xs font-bold uppercase mb-6 text-camec-gold border-b pb-2">Novo Registro de Arquivo</h2>
+                        <h2 class="text-xs font-bold uppercase mb-6 text-camec-gold border-b pb-2">Novo Arquivo / Registro</h2>
                         <div class="space-y-4">
                             <input type="text" id="file-in-nome" placeholder="NOME DO ARQUIVO" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
-                            <input type="text" id="file-in-empresa" placeholder="EMPRESA DO CLIENTE" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
+                            <input type="text" id="file-in-empresa" placeholder="CLIENTE / EMPRESA" class="w-full p-3 bg-gray-50 rounded-lg outline-none uppercase font-bold text-xs border">
                             <div class="grid grid-cols-2 gap-2">
-                                <input type="number" id="file-in-volume" placeholder="Volume (Total)" class="p-3 bg-gray-50 border rounded-lg text-xs">
+                                <input type="number" id="file-in-volume" placeholder="Volume" class="p-3 bg-gray-50 border rounded-lg text-xs">
                                 <input type="date" id="file-in-data" class="p-3 bg-gray-50 border rounded-lg text-xs">
                             </div>
-                            <p class="text-[9px] text-gray-400">* O vencimento será calculado em 30 dias a partir da data informada.</p>
-                            <button onclick="salvarArquivo()" class="w-full bg-camec-brown text-white py-3 rounded-xl font-bold uppercase">Registrar Arquivo no Sistema</button>
+                            <button onclick="salvarArquivo()" class="w-full bg-camec-brown text-white py-3 rounded-xl font-bold uppercase">Cadastrar Arquivo</button>
                         </div>
                     </div>
 
-                    <div class="col-span-1 md:col-span-2 space-y-2 mt-4">
-                        <h3 class="text-[10px] font-bold uppercase text-gray-400">Histórico de Lançamentos Recentes</h3>
-                        <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-80 overflow-y-auto"></div>
+                    <div class="col-span-1 md:col-span-2 mt-4">
+                        <h3 class="text-[10px] font-bold uppercase text-gray-400 mb-2">Ações Recentes</h3>
+                        <div id="admin-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto"></div>
                     </div>
                 </div>
             </section>
@@ -252,7 +254,7 @@
         document.getElementById(`view-${v}`).classList.add('active');
         document.getElementById(`btn-${v}`).classList.add('active');
         
-        const titulos = { 'dashboard': 'Dashboard de Produção', 'arquivos': 'Controle de Arquivos', 'admin': 'Painel de Administração' };
+        const titulos = { 'dashboard': 'Dashboard de Produção', 'arquivos': 'Controle de Arquivos', 'admin': 'Administração' };
         document.getElementById('page-title').innerText = titulos[v];
     };
 
@@ -260,19 +262,18 @@
         if(document.getElementById('admin-pass').value === 'wuwg62Adm1n;') {
             document.getElementById('auth-box').classList.add('hidden');
             document.getElementById('admin-panel').classList.remove('hidden');
-        } else { Swal.fire('Erro', 'Senha administrativa incorreta.', 'error'); }
+        } else { Swal.fire('Erro', 'Senha incorreta.', 'error'); }
     };
 
     const formatarMes = (m) => m.replace('_', ' ').replace('MARCO', 'MARÇO');
 
-    // RENDERIZAÇÃO GERAL
     window.renderizarTudo = () => {
         renderizarDashboard();
         renderizarListaEmpresas();
         if(empresaSelecionada) renderizarDetalhesArquivos();
     };
 
-    // DASHBOARD PRODUÇÃO
+    // DASHBOARD
     const renderizarDashboard = () => {
         const mesRef = document.getElementById('filtro-mes').value;
         const query = document.getElementById('search-input').value.toUpperCase();
@@ -313,7 +314,7 @@
         const empresas = [...new Set(masterFiles.map(f => f.empresa.toUpperCase()))].sort();
 
         if (empresas.length === 0) {
-            container.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs italic">Nenhum registro encontrado.</div>';
+            container.innerHTML = '<div class="p-8 text-center text-gray-400 text-xs italic">Nenhum registro.</div>';
             return;
         }
 
@@ -367,11 +368,11 @@
         document.getElementById('company-file-danger').innerText = vencidos;
     };
 
-    // ADMINISTRAÇÃO E SALVAMENTO
+    // SALVAMENTO
     window.salvarProducao = async () => {
         const nome = document.getElementById('in-empresa').value.trim().toUpperCase();
         const mes = document.getElementById('in-mes').value;
-        if(!nome) return Swal.fire('Atenção', 'Digite o nome da empresa.', 'warning');
+        if(!nome) return;
 
         const data = {
             id: `${mes}_${nome}`, nome, mes,
@@ -381,14 +382,14 @@
             whatsapp: parseInt(document.getElementById('in-wpp').value) || 0
         };
         await setDoc(doc(db, "producao_mensal", data.id), data);
-        Swal.fire('CAMEC', 'Produção gravada com sucesso!', 'success');
+        Swal.fire('CAMEC', 'Produção salva.', 'success');
     };
 
     window.salvarArquivo = async () => {
         const nome = document.getElementById('file-in-nome').value.trim().toUpperCase();
         const empresa = document.getElementById('file-in-empresa').value.trim().toUpperCase();
         const dataEnvio = document.getElementById('file-in-data').value;
-        if(!nome || !empresa || !dataEnvio) return Swal.fire('Atenção', 'Preencha todos os campos do arquivo.', 'warning');
+        if(!nome || !empresa) return;
 
         const id = `FILE_${Date.now()}`;
         await setDoc(doc(db, "controle_arquivos", id), {
@@ -396,32 +397,30 @@
             volume: document.getElementById('file-in-volume').value || 0,
             data: dataEnvio
         });
-        Swal.fire('CAMEC', 'Arquivo registrado na base de dados!', 'success');
+        Swal.fire('CAMEC', 'Arquivo registrado.', 'success');
     };
 
-    window.excluirRegistro = async (colecao, id) => {
-        const res = await Swal.fire({ title: 'Excluir?', text: "Esta ação não pode ser desfeita.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#a16d2a' });
-        if(res.isConfirmed) await deleteDoc(doc(db, colecao, id));
+    window.excluirReg = async (col, id) => {
+        const res = await Swal.fire({ title: 'Excluir?', showCancelButton: true });
+        if(res.isConfirmed) await deleteDoc(doc(db, col, id));
     };
 
     const atualizarAdminList = () => {
         const list = document.getElementById('admin-list');
-        const prodItems = masterData.slice(-4).map(e => `
+        const p = masterData.slice(-3).map(e => `
             <div class="p-3 bg-white border rounded-xl flex justify-between items-center text-[10px]">
-                <span class="font-bold uppercase"><i class="fas fa-chart-line mr-2 text-gray-400"></i>${e.nome} (${formatarMes(e.mes)})</span>
-                <button onclick="excluirRegistro('producao_mensal', '${e.id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                <span class="font-bold uppercase">${e.nome} (${formatarMes(e.mes)})</span>
+                <button onclick="excluirReg('producao_mensal', '${e.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>
             </div>`).join('');
-        
-        const fileItems = masterFiles.slice(-4).map(f => `
+        const f = masterFiles.slice(-3).map(f => `
             <div class="p-3 bg-white border rounded-xl flex justify-between items-center text-[10px]">
-                <span class="font-bold uppercase"><i class="fas fa-file-alt mr-2 text-gray-400"></i>${f.nome} - ${f.empresa}</span>
-                <button onclick="excluirRegistro('controle_arquivos', '${f.id}')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                <span class="font-bold uppercase">${f.nome} - ${f.empresa}</span>
+                <button onclick="excluirReg('controle_arquivos', '${f.id}')" class="text-red-300"><i class="fas fa-trash"></i></button>
             </div>`).join('');
-            
-        list.innerHTML = prodItems + fileItems;
+        list.innerHTML = p + f;
     };
 
-    // INICIALIZAÇÃO
+    // INIT
     const init = () => {
         const opts = PERIODOS.map(p => `<option value="${p}">${formatarMes(p)}</option>`).join('');
         document.getElementById('filtro-mes').innerHTML = opts;
