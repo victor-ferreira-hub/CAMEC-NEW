@@ -38,11 +38,12 @@
     @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
     * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
     body {
       font-family: 'Public Sans', sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(161, 109, 42, 0.12), transparent 28%),
-        linear-gradient(135deg, #fbfcfd 0%, #f7f3ee 100%);
+        radial-gradient(circle at 72% -10%, rgba(161, 109, 42, 0.10), transparent 32rem),
+        #f6f4f1;
       color: #334155;
     }
 
@@ -62,6 +63,77 @@
 
     .card-hover { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
     .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 50px rgba(15, 23, 42, .10); border-color: rgba(161, 109, 42, .22); }
+
+    .file-kpi {
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .file-kpi::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 0;
+      height: 2px;
+      border-radius: 99px 99px 0 0;
+      background: linear-gradient(90deg, transparent, rgba(161,109,42,.55), transparent);
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    .file-kpi:hover {
+      transform: translateY(-2px);
+      border-color: rgba(161,109,42,.22);
+      box-shadow: 0 16px 36px rgba(61,43,31,.07);
+    }
+    .file-kpi:hover::after { opacity: 1; }
+
+    .file-hero {
+      background:
+        radial-gradient(circle at 90% 15%, rgba(217,168,94,.20), transparent 24rem),
+        #31241c;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .status-ok { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .status-soon { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+    .status-expired { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .status-unknown { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+
+    .file-row { cursor: pointer; transition: background-color .18s ease; }
+    .file-row:hover { background: #fcfaf7; }
+
+    .file-detail-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      background: rgba(20, 15, 12, .52);
+      backdrop-filter: blur(3px);
+    }
+    .file-detail-backdrop.open { display: block; animation: fadeBackdrop .2s ease; }
+    .file-detail-panel {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: min(100%, 460px);
+      overflow-y: auto;
+      background: #fff;
+      box-shadow: -24px 0 70px rgba(15, 23, 42, .18);
+      animation: slidePanel .25s ease;
+    }
+    body.modal-open { overflow: hidden; }
+    @keyframes fadeBackdrop { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slidePanel { from { transform: translateX(30px); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
 
     .glass {
       background: rgba(255, 255, 255, .88);
@@ -98,8 +170,7 @@
       <div class="p-7 flex-1">
         <div class="mb-8">
           <div class="h-20 rounded-3xl bg-gradient-to-br from-camec-cream to-white border border-camec-gold/10 flex items-center justify-center px-5 shadow-sm">
-            <img src="Logo-1.png" alt="CAMEC Logo" class="max-h-14 max-w-full object-contain" onerror="this.style.display='none'; document.getElementById('fallback-logo').classList.remove('hidden')">
-            <div id="fallback-logo" class="hidden text-center">
+            <div id="fallback-logo" class="text-center">
               <p class="text-2xl font-black text-camec-brown leading-none">CAMEC</p>
               <p class="text-[10px] font-black text-camec-gold tracking-[0.25em] mt-1">GESTÃO</p>
             </div>
@@ -154,7 +225,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+          <div id="global-filters" class="flex flex-col sm:flex-row gap-3 sm:items-center">
             <div class="relative">
               <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
               <input type="text" id="search-input" oninput="renderizarTudo()" placeholder="Buscar cliente..." class="w-full sm:w-72 pl-10 pr-4 py-3 text-sm border border-slate-100 rounded-2xl outline-none focus:ring-4 ring-camec-gold/10 focus:border-camec-gold bg-white shadow-sm">
@@ -300,57 +371,126 @@
         </section>
 
         <section id="view-arquivos" class="view-section">
-          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-            <div class="xl:col-span-3">
-              <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-5 border-b border-slate-100 bg-slate-50/70">
-                  <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Clientes</h4>
-                  <p class="text-xs text-slate-500 mt-1 font-semibold">Selecione para ver os arquivos.</p>
+          <div class="file-hero rounded-[2rem] p-6 md:p-8 text-white overflow-hidden relative mb-6">
+            <div class="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-camec-gold/20 blur-2xl"></div>
+            <div class="relative flex flex-col xl:flex-row xl:items-end xl:justify-between gap-6">
+              <div>
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-[9px] font-black uppercase tracking-[.16em] text-[#efcf9b]">
+                  <i class="fa-solid fa-folder-tree"></i> Área reorganizada
+                </span>
+                <h2 class="text-2xl md:text-3xl font-black tracking-tight mt-4">Encontre qualquer arquivo com rapidez.</h2>
+                <p class="text-sm text-stone-300 mt-2 max-w-2xl leading-relaxed">
+                  Uma lista única, com busca, filtros por cliente e vencimento, além de detalhes completos sem poluição visual.
+                </p>
+              </div>
+              <button onclick="switchView('admin')" class="shrink-0 px-5 py-3.5 rounded-2xl bg-[#d9a85e] text-[#31241c] text-xs font-black uppercase hover:bg-[#e6bb78] transition">
+                <i class="fa-solid fa-plus mr-2"></i> Registrar arquivo
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <div class="file-kpi bg-white border border-slate-100 rounded-3xl p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Arquivos cadastrados</p>
+                  <p id="files-total-count" class="text-2xl font-black text-camec-brown mt-2">0</p>
+                  <p id="files-clients-count" class="text-xs font-semibold text-slate-400 mt-3">0 clientes organizados</p>
                 </div>
-                <div id="lista-empresas-arquivos" class="max-h-[560px] overflow-y-auto"></div>
+                <span class="w-11 h-11 rounded-2xl bg-camec-gold/10 text-camec-gold grid place-items-center"><i class="fa-solid fa-folder-open"></i></span>
+              </div>
+            </div>
+            <div class="file-kpi bg-white border border-slate-100 rounded-3xl p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Volume acumulado</p>
+                  <p id="files-total-volume" class="text-2xl font-black text-camec-brown mt-2">0</p>
+                  <p class="text-xs font-semibold text-slate-400 mt-3">Soma de todos os registros</p>
+                </div>
+                <span class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-600 grid place-items-center"><i class="fa-solid fa-hard-drive"></i></span>
+              </div>
+            </div>
+            <div class="file-kpi bg-white border border-slate-100 rounded-3xl p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Vence em breve</p>
+                  <p id="files-soon-count" class="text-2xl font-black text-amber-600 mt-2">0</p>
+                  <p class="text-xs font-semibold text-slate-400 mt-3">Prazo de até 7 dias</p>
+                </div>
+                <span class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 grid place-items-center"><i class="fa-regular fa-clock"></i></span>
+              </div>
+            </div>
+            <div class="file-kpi bg-white border border-slate-100 rounded-3xl p-5">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">Vencidos</p>
+                  <p id="files-expired-count" class="text-2xl font-black text-red-600 mt-2">0</p>
+                  <p class="text-xs font-semibold text-slate-400 mt-3">Precisam de atenção</p>
+                </div>
+                <span class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 grid place-items-center"><i class="fa-solid fa-triangle-exclamation"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-[2rem] border border-slate-100 overflow-hidden">
+            <div class="p-5 md:p-6 border-b border-slate-100">
+              <div class="flex flex-col 2xl:flex-row 2xl:items-center gap-5">
+                <div class="min-w-[220px]">
+                  <p class="text-[9px] font-black uppercase tracking-[.16em] text-camec-gold">Lista central</p>
+                  <h3 class="font-black text-camec-brown mt-1">Arquivos cadastrados</h3>
+                  <p id="files-results-label" class="text-xs font-semibold text-slate-400 mt-1">0 arquivos exibidos</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3 flex-1">
+                  <div class="relative xl:col-span-2">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input id="file-search-input" oninput="renderizarAreaArquivos()" type="text" placeholder="Buscar arquivo ou cliente..." class="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:border-camec-gold focus:ring-4 ring-camec-gold/10">
+                  </div>
+                  <select id="file-company-filter" onchange="renderizarAreaArquivos()" class="w-full px-4 py-3 text-xs font-black bg-slate-50 border border-slate-100 rounded-2xl outline-none cursor-pointer focus:border-camec-gold">
+                    <option value="TODOS">Todos os clientes</option>
+                  </select>
+                  <select id="file-status-filter" onchange="renderizarAreaArquivos()" class="w-full px-4 py-3 text-xs font-black bg-slate-50 border border-slate-100 rounded-2xl outline-none cursor-pointer focus:border-camec-gold">
+                    <option value="TODOS">Todos os status</option>
+                    <option value="OK">Em dia</option>
+                    <option value="BREVE">Vence em breve</option>
+                    <option value="VENCIDO">Vencidos</option>
+                  </select>
+                  <div class="flex gap-2">
+                    <select id="file-sort-filter" onchange="renderizarAreaArquivos()" class="min-w-0 flex-1 px-4 py-3 text-xs font-black bg-slate-50 border border-slate-100 rounded-2xl outline-none cursor-pointer focus:border-camec-gold">
+                      <option value="RECENTE">Mais recentes</option>
+                      <option value="VENCIMENTO">Vencem primeiro</option>
+                      <option value="VOLUME">Maior volume</option>
+                    </select>
+                    <button onclick="limparFiltrosArquivos()" title="Limpar filtros" class="w-11 shrink-0 rounded-2xl border border-slate-100 bg-white text-slate-400 hover:text-camec-gold hover:bg-camec-gold/5 transition">
+                      <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="xl:col-span-9 space-y-6">
-              <div id="file-detail-header" class="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <p class="text-[10px] font-black text-camec-gold uppercase tracking-[0.2em]">Detalhe do cliente</p>
-                    <h2 id="nome-empresa-selecionada" class="text-2xl font-black text-camec-brown uppercase tracking-tight mt-1">Selecione uma empresa</h2>
-                  </div>
-                  <div class="grid grid-cols-3 gap-3 min-w-full md:min-w-[360px]">
-                    <div class="rounded-2xl bg-slate-50 p-4 text-center">
-                      <p class="text-[9px] font-black text-slate-400 uppercase">Arquivos</p>
-                      <p id="detail-total-files" class="text-xl font-black text-camec-brown">0</p>
-                    </div>
-                    <div class="rounded-2xl bg-slate-50 p-4 text-center">
-                      <p class="text-[9px] font-black text-slate-400 uppercase">Volume</p>
-                      <p id="detail-total-volume" class="text-xl font-black text-camec-brown">0</p>
-                    </div>
-                    <div class="rounded-2xl bg-slate-50 p-4 text-center">
-                      <p class="text-[9px] font-black text-slate-400 uppercase">Vencidos</p>
-                      <p id="detail-total-expired" class="text-xl font-black text-red-500">0</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="table-wrap hidden md:block">
+              <table class="w-full text-left">
+                <thead class="bg-slate-50/80 border-b border-slate-100">
+                  <tr>
+                    <th class="px-6 py-4 text-[9px] font-black uppercase tracking-wider text-slate-400">Cliente e arquivo</th>
+                    <th class="px-5 py-4 text-[9px] font-black uppercase tracking-wider text-slate-400">Data</th>
+                    <th class="px-5 py-4 text-right text-[9px] font-black uppercase tracking-wider text-slate-400">Volume</th>
+                    <th class="px-5 py-4 text-[9px] font-black uppercase tracking-wider text-slate-400">Vencimento</th>
+                    <th class="px-5 py-4 text-[9px] font-black uppercase tracking-wider text-slate-400">Status</th>
+                    <th class="px-6 py-4 text-right text-[9px] font-black uppercase tracking-wider text-slate-400">Detalhes</th>
+                  </tr>
+                </thead>
+                <tbody id="files-table-body" class="divide-y divide-slate-50"></tbody>
+              </table>
+            </div>
 
-              <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="table-wrap">
-                  <table class="w-full text-left">
-                    <thead class="bg-slate-50/80 border-b border-slate-100">
-                      <tr>
-                        <th class="px-7 py-5 text-[10px] font-black uppercase text-slate-400">Arquivo</th>
-                        <th class="px-5 py-5 text-center text-[10px] font-black uppercase text-slate-400">Volume</th>
-                        <th class="px-5 py-5 text-center text-[10px] font-black uppercase text-slate-400">Data</th>
-                        <th class="px-5 py-5 text-center text-[10px] font-black uppercase text-slate-400">Vencimento</th>
-                        <th class="px-7 py-5 text-right text-[10px] font-black uppercase text-slate-400">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tabela-arquivos-filtrada" class="text-[13px] divide-y divide-slate-50"></tbody>
-                  </table>
-                </div>
-              </div>
+            <div id="files-mobile-list" class="md:hidden divide-y divide-slate-100"></div>
+            <div id="files-empty-state" class="hidden px-6 py-16 text-center">
+              <span class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-300 grid place-items-center mx-auto"><i class="fa-regular fa-folder-open text-xl"></i></span>
+              <p class="text-sm font-black text-slate-500 mt-4">Nenhum arquivo encontrado.</p>
+              <p class="text-xs font-semibold text-slate-400 mt-1">Limpe os filtros ou faça uma nova busca.</p>
+              <button onclick="limparFiltrosArquivos()" class="mt-5 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-500 hover:text-camec-gold">Limpar filtros</button>
             </div>
           </div>
         </section>
@@ -450,6 +590,70 @@
         </section>
       </div>
     </main>
+  </div>
+
+  <div id="file-detail-modal" class="file-detail-backdrop" onclick="if(event.target === this) fecharDetalheArquivo()">
+    <aside class="file-detail-panel">
+      <div class="bg-[#31241c] p-6 text-white">
+        <div class="flex items-start justify-between gap-4">
+          <span class="w-11 h-11 rounded-2xl bg-white/10 text-[#efcf9b] grid place-items-center"><i class="fa-solid fa-folder-open"></i></span>
+          <button onclick="fecharDetalheArquivo()" class="w-10 h-10 rounded-xl bg-white/10 text-white hover:bg-white/20 transition" aria-label="Fechar detalhes">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div id="modal-file-status" class="mt-5"></div>
+        <h2 id="modal-file-name" class="text-xl font-black uppercase tracking-tight mt-4">Arquivo</h2>
+        <p id="modal-file-company" class="text-sm text-stone-300 mt-1"><i class="fa-solid fa-building mr-2"></i>Cliente</p>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-slate-50 p-4">
+            <p class="text-[9px] font-black uppercase tracking-wider text-slate-400">Volume total</p>
+            <p id="modal-file-volume" class="text-xl font-black text-camec-brown mt-2">0</p>
+          </div>
+          <div class="rounded-2xl bg-slate-50 p-4">
+            <p class="text-[9px] font-black uppercase tracking-wider text-slate-400">Recebido em</p>
+            <p id="modal-file-date" class="text-sm font-black text-camec-brown mt-2">-</p>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-100 p-4 flex gap-3">
+          <span id="modal-due-icon" class="w-10 h-10 shrink-0 rounded-xl grid place-items-center bg-slate-100 text-slate-500"><i class="fa-regular fa-calendar"></i></span>
+          <div>
+            <p id="modal-file-due-date" class="text-xs font-black text-slate-700">Vencimento: -</p>
+            <p id="modal-file-due-label" class="text-[11px] font-semibold text-slate-400 mt-1">Prazo calculado em 30 dias.</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-[9px] font-black uppercase tracking-[.16em] text-camec-gold">Distribuição por canal</p>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="rounded-2xl border border-slate-100 p-3 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 grid place-items-center"><i class="fa-solid fa-comment-sms"></i></span>
+              <div><p class="text-[9px] font-black uppercase text-slate-400">SMS</p><p id="modal-file-sms" class="text-sm font-black text-slate-700 mt-0.5">0</p></div>
+            </div>
+            <div class="rounded-2xl border border-slate-100 p-3 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-green-50 text-green-600 grid place-items-center"><i class="fa-brands fa-whatsapp"></i></span>
+              <div><p class="text-[9px] font-black uppercase text-slate-400">WhatsApp</p><p id="modal-file-wpp" class="text-sm font-black text-slate-700 mt-0.5">0</p></div>
+            </div>
+            <div class="rounded-2xl border border-slate-100 p-3 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 grid place-items-center"><i class="fa-solid fa-envelope-open-text"></i></span>
+              <div><p class="text-[9px] font-black uppercase text-slate-400">Carta</p><p id="modal-file-carta" class="text-sm font-black text-slate-700 mt-0.5">0</p></div>
+            </div>
+            <div class="rounded-2xl border border-slate-100 p-3 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 grid place-items-center"><i class="fa-solid fa-envelope"></i></span>
+              <div><p class="text-[9px] font-black uppercase text-slate-400">E-mail</p><p id="modal-file-email" class="text-sm font-black text-slate-700 mt-0.5">0</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-camec-gold/5 border border-camec-gold/10 p-4 text-[11px] font-semibold text-slate-500 leading-relaxed">
+          <i class="fa-solid fa-circle-info text-camec-gold mr-2"></i>
+          Este registro representa o controle da base processada e está sincronizado com a produção mensal.
+        </div>
+      </div>
+    </aside>
   </div>
 
   <script type="module">
@@ -559,13 +763,23 @@
       document.getElementById(`btn-${v}`).classList.add("active");
 
       const titulos = {
-        dashboard: "Dashboard de Produção",
+        dashboard: "Visão Geral da Produção",
         arquivos: "Controle de Arquivos",
         admin: "Painel Administrativo"
       };
+      const subtitulos = {
+        dashboard: formatarMes(document.getElementById("filtro-mes").value),
+        arquivos: "ORGANIZAÇÃO",
+        admin: "ÁREA RESTRITA"
+      };
       document.getElementById("page-title").innerText = titulos[v] || "Sistema CAMEC";
+      document.getElementById("header-mes-atual").innerText = subtitulos[v] || "CAMEC";
+      document.getElementById("global-filters").classList.toggle("hidden", v !== "dashboard");
       toggleSidebar(false);
-      setTimeout(() => renderizarTudo(), 50);
+      setTimeout(() => {
+        renderizarTudo();
+        if (v === "arquivos") renderizarAreaArquivos();
+      }, 50);
     };
 
     window.limparFiltros = () => {
@@ -922,7 +1136,9 @@
     window.renderizarTudo = () => {
       const mesRef = document.getElementById("filtro-mes").value;
       const dados = getDadosFiltrados();
-      document.getElementById("header-mes-atual").innerText = formatarMes(mesRef);
+      if (document.getElementById("view-dashboard").classList.contains("active")) {
+        document.getElementById("header-mes-atual").innerText = formatarMes(mesRef);
+      }
 
       const tot = dados.reduce((acc, e) => ({
         reg: acc.reg + number(e.registros),
@@ -974,27 +1190,7 @@
       document.getElementById("total-sms").innerText = formatNumber(tot.sms);
       document.getElementById("total-email").innerText = formatNumber(tot.email);
 
-      const emps = [...new Set(masterFiles.map(f => String(f.empresa || "").toUpperCase()).filter(Boolean))].sort();
-      const lista = document.getElementById("lista-empresas-arquivos");
-
-      if (!emps.length) {
-        lista.innerHTML = `
-          <div class="p-6 text-center">
-            <i class="fa-regular fa-folder-open text-3xl text-slate-200"></i>
-            <p class="text-xs font-bold text-slate-400 mt-3">Nenhum cliente com arquivo.</p>
-          </div>`;
-      } else {
-        lista.innerHTML = emps.map(emp => {
-          const qtd = masterFiles.filter(f => String(f.empresa || "").toUpperCase() === emp).length;
-          return `
-            <button onclick='selecionarEmpresa(${JSON.stringify(emp)})' class="w-full text-left px-5 py-4 border-b border-slate-50 text-xs font-black uppercase hover:bg-camec-gold/5 transition ${empresaSelecionada === emp ? "bg-camec-gold/10 text-camec-gold" : "text-slate-600"}">
-              <div class="flex items-center justify-between gap-3">
-                <span>${escapeHtml(emp)}</span>
-                <span class="px-2 py-1 rounded-full bg-white border border-slate-100 text-[10px]">${qtd}</span>
-              </div>
-            </button>`;
-        }).join("");
-      }
+      renderizarAreaArquivos();
 
       const last = masterFiles.slice().sort((a, b) => String(b.criadoEm || b.id || "").localeCompare(String(a.criadoEm || a.id || ""))).slice(0, 12);
       const adminList = document.getElementById("admin-list");
@@ -1020,89 +1216,194 @@
           </div>`).join("");
       }
 
-      if (empresaSelecionada) renderizarArquivosDetalhe();
-      else resetarDetalheArquivos();
-
       renderGrafico(dados);
       setLoading();
     };
 
-    window.selecionarEmpresa = (n) => {
-      empresaSelecionada = n;
-      renderizarTudo();
-    };
+    const normalizarTexto = (valor = "") => String(valor)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
 
-    const resetarDetalheArquivos = () => {
-      document.getElementById("nome-empresa-selecionada").innerText = "Selecione uma empresa";
-      document.getElementById("detail-total-files").innerText = "0";
-      document.getElementById("detail-total-volume").innerText = "0";
-      document.getElementById("detail-total-expired").innerText = "0";
-      document.getElementById("tabela-arquivos-filtrada").innerHTML = `
-        <tr>
-          <td colspan="5" class="px-8 py-14 text-center">
-            <i class="fa-solid fa-arrow-left text-3xl text-slate-200"></i>
-            <p class="text-sm font-black text-slate-400 mt-3">Escolha um cliente na lista.</p>
-          </td>
-        </tr>`;
-    };
+    const getArquivoMeta = (arquivo = {}) => {
+      const dataBase = parseLocalDate(arquivo.data);
+      if (!dataBase) {
+        return { vencimento: null, dias: null, status: "SEM_DATA" };
+      }
 
-    const renderizarArquivosDetalhe = () => {
-      const filtrados = masterFiles
-        .filter(f => String(f.empresa || "").toUpperCase() === empresaSelecionada)
-        .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
-
-      document.getElementById("nome-empresa-selecionada").innerText = empresaSelecionada;
+      const vencimento = new Date(dataBase);
+      vencimento.setDate(vencimento.getDate() + 30);
+      vencimento.setHours(0, 0, 0, 0);
 
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
+      const dias = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+      const status = dias < 0 ? "VENCIDO" : dias <= 7 ? "BREVE" : "OK";
+      return { vencimento, dias, status };
+    };
 
-      let vencidos = 0;
-      const volume = filtrados.reduce((acc, f) => acc + number(f.volume), 0);
+    const statusArquivoHtml = (meta) => {
+      const mapa = {
+        OK: { classe: "status-ok", icone: "fa-circle-check", texto: "EM DIA" },
+        BREVE: { classe: "status-soon", icone: "fa-clock", texto: "VENCE EM BREVE" },
+        VENCIDO: { classe: "status-expired", icone: "fa-triangle-exclamation", texto: "VENCIDO" },
+        SEM_DATA: { classe: "status-unknown", icone: "fa-calendar-xmark", texto: "SEM DATA" }
+      };
+      const item = mapa[meta.status] || mapa.SEM_DATA;
+      return `<span class="status-pill ${item.classe}"><i class="fa-solid ${item.icone}"></i>${item.texto}</span>`;
+    };
 
-      const linhas = filtrados.map(f => {
-        const dataBase = parseLocalDate(f.data);
-        let vcto = null;
-        let dias = 0;
+    const labelPrazoArquivo = (meta) => {
+      if (meta.dias === null) return "Data não informada";
+      if (meta.dias < 0) {
+        const dias = Math.abs(meta.dias);
+        return `Vencido há ${dias} ${dias === 1 ? "dia" : "dias"}`;
+      }
+      if (meta.dias === 0) return "Vence hoje";
+      return `Vence em ${meta.dias} ${meta.dias === 1 ? "dia" : "dias"}`;
+    };
 
-        if (dataBase) {
-          vcto = new Date(dataBase);
-          vcto.setDate(vcto.getDate() + 30);
-          vcto.setHours(0, 0, 0, 0);
-          dias = Math.ceil((vcto - hoje) / (1000 * 60 * 60 * 24));
-        }
+    window.renderizarAreaArquivos = () => {
+      const corpo = document.getElementById("files-table-body");
+      const mobile = document.getElementById("files-mobile-list");
+      if (!corpo || !mobile) return;
 
-        const expirado = dataBase && dias < 0;
-        if (expirado) vencidos += 1;
+      const empresas = [...new Set(masterFiles
+        .map(f => String(f.empresa || "").toUpperCase())
+        .filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
 
-        const statusClass = expirado ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600";
-        const statusTxt = expirado ? "EXPIRADO" : "OK";
+      const selectEmpresa = document.getElementById("file-company-filter");
+      const empresaAtual = selectEmpresa.value || "TODOS";
+      selectEmpresa.innerHTML = `<option value="TODOS">Todos os clientes</option>` +
+        empresas.map(emp => `<option value="${escapeHtml(emp)}">${escapeHtml(emp)}</option>`).join("");
+      selectEmpresa.value = empresas.includes(empresaAtual) ? empresaAtual : "TODOS";
 
+      const busca = normalizarTexto(document.getElementById("file-search-input").value.trim());
+      const empresa = selectEmpresa.value;
+      const status = document.getElementById("file-status-filter").value;
+      const ordenacao = document.getElementById("file-sort-filter").value;
+
+      const todosComMeta = masterFiles.map(f => ({ ...f, _meta: getArquivoMeta(f) }));
+      const filtrados = todosComMeta
+        .filter(f => normalizarTexto(f.nome).includes(busca) || normalizarTexto(f.empresa).includes(busca))
+        .filter(f => empresa === "TODOS" || String(f.empresa || "").toUpperCase() === empresa)
+        .filter(f => status === "TODOS" || f._meta.status === status)
+        .sort((a, b) => {
+          if (ordenacao === "VOLUME") return number(b.volume) - number(a.volume);
+          if (ordenacao === "VENCIMENTO") {
+            return (a._meta.vencimento?.getTime() || Number.MAX_SAFE_INTEGER) -
+              (b._meta.vencimento?.getTime() || Number.MAX_SAFE_INTEGER);
+          }
+          return String(b.data || b.criadoEm || b.id || "")
+            .localeCompare(String(a.data || a.criadoEm || a.id || ""));
+        });
+
+      const totalVolume = todosComMeta.reduce((acc, f) => acc + number(f.volume), 0);
+      const vencidos = todosComMeta.filter(f => f._meta.status === "VENCIDO").length;
+      const proximos = todosComMeta.filter(f => f._meta.status === "BREVE").length;
+
+      document.getElementById("files-total-count").innerText = formatNumber(masterFiles.length);
+      document.getElementById("files-clients-count").innerText =
+        `${formatNumber(empresas.length)} ${empresas.length === 1 ? "cliente organizado" : "clientes organizados"}`;
+      document.getElementById("files-total-volume").innerText = formatNumber(totalVolume);
+      document.getElementById("files-soon-count").innerText = formatNumber(proximos);
+      document.getElementById("files-expired-count").innerText = formatNumber(vencidos);
+      document.getElementById("files-results-label").innerText =
+        `${formatNumber(filtrados.length)} de ${formatNumber(masterFiles.length)} exibidos`;
+
+      const vazio = document.getElementById("files-empty-state");
+      vazio.classList.toggle("hidden", filtrados.length > 0);
+      corpo.parentElement.parentElement.classList.toggle("hidden", filtrados.length === 0);
+      mobile.classList.toggle("hidden", filtrados.length === 0);
+
+      corpo.innerHTML = filtrados.map(f => {
+        const meta = f._meta;
         return `
-          <tr class="hover:bg-slate-50/80 transition">
-            <td class="px-7 py-4">
-              <p class="font-black uppercase text-slate-700">${escapeHtml(f.nome || "-")}</p>
-              <p class="text-[10px] text-slate-400 font-bold mt-1">SMS: ${formatNumber(f.sms)} • WPP: ${formatNumber(f.whatsapp)} • CARTA: ${formatNumber(getCartaValue(f))} • EMAIL: ${formatNumber(getEmailValue(f))}</p>
+          <tr class="file-row" data-id="${escapeHtml(f.id || "")}" onclick="abrirDetalheArquivo(this.dataset.id)">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 shrink-0 rounded-2xl bg-camec-gold/10 text-camec-gold grid place-items-center"><i class="fa-solid fa-folder-open"></i></span>
+                <div class="min-w-0">
+                  <p class="max-w-[310px] truncate text-xs font-black uppercase text-slate-700">${escapeHtml(f.nome || "Arquivo sem identificação")}</p>
+                  <p class="text-[10px] font-bold uppercase text-slate-400 mt-1"><i class="fa-solid fa-building mr-1"></i>${escapeHtml(f.empresa || "Cliente não informado")}</p>
+                </div>
+              </div>
             </td>
-            <td class="px-5 py-4 text-center font-black text-camec-gold">${formatNumber(f.volume)}</td>
-            <td class="px-5 py-4 text-center font-bold text-slate-500">${formatDateBR(f.data)}</td>
-            <td class="px-5 py-4 text-center font-bold text-slate-500">${vcto ? vcto.toLocaleDateString("pt-BR") : "-"}</td>
-            <td class="px-7 py-4 text-right">
-              <span class="px-3 py-1.5 rounded-full text-[10px] font-black ${statusClass}">${statusTxt}</span>
+            <td class="px-5 py-4 text-xs font-bold text-slate-500">${formatDateBR(f.data)}</td>
+            <td class="px-5 py-4 text-right text-xs font-black text-camec-gold">${formatNumber(f.volume)}</td>
+            <td class="px-5 py-4">
+              <p class="text-xs font-bold text-slate-600">${meta.vencimento ? meta.vencimento.toLocaleDateString("pt-BR") : "Sem data"}</p>
+              <p class="text-[10px] font-semibold mt-1 ${meta.status === "VENCIDO" ? "text-red-500" : meta.status === "BREVE" ? "text-amber-600" : "text-slate-400"}">${labelPrazoArquivo(meta)}</p>
             </td>
+            <td class="px-5 py-4">${statusArquivoHtml(meta)}</td>
+            <td class="px-6 py-4 text-right"><span class="inline-grid w-9 h-9 place-items-center rounded-xl text-slate-400 bg-slate-50"><i class="fa-solid fa-arrow-right"></i></span></td>
           </tr>`;
       }).join("");
 
-      document.getElementById("detail-total-files").innerText = formatNumber(filtrados.length);
-      document.getElementById("detail-total-volume").innerText = formatNumber(volume);
-      document.getElementById("detail-total-expired").innerText = formatNumber(vencidos);
+      mobile.innerHTML = filtrados.map(f => {
+        const meta = f._meta;
+        return `
+          <button type="button" data-id="${escapeHtml(f.id || "")}" onclick="abrirDetalheArquivo(this.dataset.id)" class="w-full p-4 text-left hover:bg-slate-50 transition">
+            <div class="flex items-start gap-3">
+              <span class="w-10 h-10 shrink-0 rounded-2xl bg-camec-gold/10 text-camec-gold grid place-items-center"><i class="fa-solid fa-folder-open"></i></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="truncate text-xs font-black uppercase text-slate-700">${escapeHtml(f.nome || "Arquivo sem identificação")}</p>
+                    <p class="text-[10px] font-bold uppercase text-slate-400 mt-1">${escapeHtml(f.empresa || "Cliente não informado")}</p>
+                  </div>
+                  ${statusArquivoHtml(meta)}
+                </div>
+                <div class="flex items-center justify-between gap-3 mt-3 text-[11px]">
+                  <span class="font-semibold text-slate-400">${formatDateBR(f.data)}</span>
+                  <span class="font-black text-camec-gold">${formatNumber(f.volume)} registros</span>
+                </div>
+              </div>
+            </div>
+          </button>`;
+      }).join("");
+    };
 
-      document.getElementById("tabela-arquivos-filtrada").innerHTML = linhas || `
-        <tr>
-          <td colspan="5" class="px-8 py-14 text-center">
-            <i class="fa-regular fa-folder-open text-4xl text-slate-200"></i>
-            <p class="text-sm font-black text-slate-400 mt-3">Esse cliente ainda não tem arquivos cadastrados.</p>
-          </td>
-        </tr>`;
+    window.limparFiltrosArquivos = () => {
+      document.getElementById("file-search-input").value = "";
+      document.getElementById("file-company-filter").value = "TODOS";
+      document.getElementById("file-status-filter").value = "TODOS";
+      document.getElementById("file-sort-filter").value = "RECENTE";
+      renderizarAreaArquivos();
+    };
+
+    window.abrirDetalheArquivo = (id) => {
+      const arquivo = masterFiles.find(f => String(f.id || "") === String(id || ""));
+      if (!arquivo) return;
+      const meta = getArquivoMeta(arquivo);
+
+      document.getElementById("modal-file-status").innerHTML = statusArquivoHtml(meta);
+      document.getElementById("modal-file-name").innerText = arquivo.nome || "Arquivo sem identificação";
+      document.getElementById("modal-file-company").innerHTML =
+        `<i class="fa-solid fa-building mr-2"></i>${escapeHtml(arquivo.empresa || "Cliente não informado")}`;
+      document.getElementById("modal-file-volume").innerText = formatNumber(arquivo.volume);
+      document.getElementById("modal-file-date").innerText = formatDateBR(arquivo.data);
+      document.getElementById("modal-file-due-date").innerText =
+        `Vencimento: ${meta.vencimento ? meta.vencimento.toLocaleDateString("pt-BR") : "não calculado"}`;
+      document.getElementById("modal-file-due-label").innerText =
+        `${labelPrazoArquivo(meta)} • prazo calculado em 30 dias.`;
+      document.getElementById("modal-file-sms").innerText = formatNumber(arquivo.sms);
+      document.getElementById("modal-file-wpp").innerText = formatNumber(arquivo.whatsapp);
+      document.getElementById("modal-file-carta").innerText = formatNumber(getCartaValue(arquivo));
+      document.getElementById("modal-file-email").innerText = formatNumber(getEmailValue(arquivo));
+
+      const dueIcon = document.getElementById("modal-due-icon");
+      dueIcon.className = "w-10 h-10 shrink-0 rounded-xl grid place-items-center " +
+        (meta.status === "VENCIDO" ? "bg-red-50 text-red-600" :
+          meta.status === "BREVE" ? "bg-amber-50 text-amber-600" : "bg-green-50 text-green-600");
+
+      document.getElementById("file-detail-modal").classList.add("open");
+      document.body.classList.add("modal-open");
+    };
+
+    window.fecharDetalheArquivo = () => {
+      document.getElementById("file-detail-modal").classList.remove("open");
+      document.body.classList.remove("modal-open");
     };
 
     const init = () => {
@@ -1112,10 +1413,14 @@
 
       preencherDataHoje();
       setLoading();
-      resetarDetalheArquivos();
+      renderizarAreaArquivos();
 
       document.getElementById("admin-pass").addEventListener("keydown", (e) => {
         if (e.key === "Enter") checkAuth();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") fecharDetalheArquivo();
       });
 
       setInterval(() => {
